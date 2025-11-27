@@ -1,0 +1,8 @@
+# /MediConnect/uploads/.htaccess
+<IfModule mod_php7.c>
+  php_flag engine off
+</IfModule>
+
+<FilesMatch "\.(php|php5|phtml|phar)$">
+  Require all denied
+</FilesMatch>

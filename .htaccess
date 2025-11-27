@@ -1,0 +1,10 @@
+# /MediConnect/.htaccess
+RewriteEngine On
+RewriteBase /MediConnect/
+
+# Serve existing files/folders directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Uncomment the next line later if you switch to single-entry routing
+# RewriteRule ^(.*)$ index.php [QSA,L]
