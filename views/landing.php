@@ -11,8 +11,8 @@
     </p>
 
     <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
-      <a href="/MediConnect/views/auth/register.php" class="btn btn-hero-primary">Get Started</a>
-      <a href="/MediConnect/views/auth/login.php" class="btn btn-hero-outline">Login</a>
+      <a href="<?= htmlspecialchars(BASE_PATH . '/index.php?route=auth/register') ?>" class="btn btn-hero-primary">Get Started</a>
+      <a href="<?= htmlspecialchars(BASE_PATH . '/index.php?route=auth/login') ?>" class="btn btn-hero-outline">Login</a>
     </div>
   </div>
 </section>
