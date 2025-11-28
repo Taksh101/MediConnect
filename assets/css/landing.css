@@ -1,0 +1,138 @@
+/* Base */
+.mc-body {
+  background: #ffffff;
+  font-family: Inter, sans-serif;
+}
+
+/* HERO: no large padding, compact full-width image block */
+.hero-image-hero{
+  position: relative;
+  min-height: 56vh;                /* compact full-height feel (not huge) */
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* border-radius: 10px; */
+  /* margin: 1rem;                    keep page gutters */
+  background: url('/MediConnect/assets/images/herobg.avif') center/cover no-repeat;
+}
+
+/* stronger overlay so text is visible on any image */
+.hero-image-hero .hero-overlay{
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.48) 60%);
+  z-index: 1;
+}
+
+/* ensure content is above overlay */
+.hero-image-hero .hero-content{
+  position: relative;
+  z-index: 2;
+  padding-top: 1.2rem;   /* small vertical breathing room */
+  padding-bottom: 1.2rem;
+}
+
+/* Title & subtitle: clear, high contrast */
+.hero-title{
+  color: #ffffff;
+  font-size: clamp(1.6rem, 4.2vw, 2.4rem);
+  font-weight: 700;
+  margin-bottom: .5rem;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.45); /* improves legibility */
+}
+
+.hero-sub{
+  color: rgba(255,255,255,0.95);
+  max-width: 680px;
+  margin: 0 auto;
+  font-size: 1.02rem;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+}
+
+/* Buttons: standard, high-contrast, no weird shadows */
+.btn-hero-primary{
+  background: #ffffff;
+  color: #000000;           
+  border: none;
+  padding: .6rem 1.2rem;
+  border-radius: .55rem;
+  font-weight: 600;
+}
+
+.btn-hero-primary:hover{
+  background: #e0dfdf;
+  color: #000000;
+}
+
+.btn-hero-outline{
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid rgba(255,255,255,0.9);
+  padding: .55rem 1.15rem;
+  border-radius: .55rem;
+  font-weight: 600;
+}
+
+.btn-hero-outline:hover{
+  background: rgb(255, 255, 255);
+  color: #000000;
+  border-color: #000000;
+}
+
+/* small screens tweak */
+@media (max-width:768px){
+  .hero-image-hero { min-height: 48vh; margin: .6rem; }
+  .hero-title { font-size: 1.5rem; }
+  .hero-sub { font-size: .98rem; }
+}
+
+/* Features section */
+.features {
+  background: #f6f7f9;
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+/* Features heading */
+.features-title {
+    background: #f6f7f9;
+
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Feature Cards */
+.feature-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  /* Slightly stronger, modern box-shadow */
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  transition: transform .18s ease, box-shadow .18s ease;
+  padding: 1.25rem;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 44px rgba(15, 23, 42, 0.12);
+}
+
+/* Make icons clearly visible */
+.feature-icon {
+  font-size: 2rem;
+  color: #000000;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Misc */
+.badge.slot { background: #f3f6ff; color: #0f172a; padding: .4rem .65rem; border-radius: .6rem; font-weight:600; }
+.list-unstyled li { display:flex; align-items:center; gap:.5rem; }
+
+/* small utilities */
+.text-muted { color: #6b7280 !important; }
+
+/* Responsive tweaks */
+@media (max-width:768px){
+  .hero-small { padding-top: 3rem; padding-bottom: 2rem; }
+  .hero-small h1 { font-size: 1.8rem; }
+}

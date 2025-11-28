@@ -1,5 +1,9 @@
-</main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="<?= ASSETS ?>/js/scripts.js"></script>
+<?php
+?>
+<footer class="py-4 mt-6">
+  <div class="container d-flex justify-content-center align-items-center">
+    <div class="small text-muted">© <?= date('Y') ?> MediConnect</div>
+  </div>
+</footer>
 </body>
 </html>
