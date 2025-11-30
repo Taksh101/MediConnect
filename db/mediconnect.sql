@@ -13,6 +13,7 @@ CREATE TABLE patients (
   Password VARCHAR(50) NOT NULL,
   Phone VARCHAR(10) NOT NULL,
   Gender ENUM('MALE','FEMALE','OTHER') NOT NULL,
+  Is_Profile_Complete tinyint(1) DEFAULT 0,
   DOB DATE NOT NULL,
   Address VARCHAR(255),
   Created_At DATETIME DEFAULT CURRENT_TIMESTAMP

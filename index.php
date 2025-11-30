@@ -13,6 +13,27 @@ $scriptPath = $_SERVER['SCRIPT_NAME'] ?? '/';
 $base = rtrim(dirname($scriptPath), '/\\');
 if ($base === '') $base = '/';
 define('BASE_PATH', $base);
+// --- Ensure DB connection is available to controllers ---
+// Include your database config (it defines $mysqli); normalize to $db for controllers.
+$dbFile = __DIR__ . '/config/database.php';
+if (file_exists($dbFile)) {
+    require_once $dbFile; // expected to create $mysqli (see config/database.php)
+    // Normalize common names to $db (mysqli)
+    if (!isset($db) || !($db instanceof mysqli)) {
+        if (isset($mysqli) && $mysqli instanceof mysqli) $db = $mysqli;
+        elseif (isset($conn) && $conn instanceof mysqli) $db = $conn;
+        elseif (isset($link) && $link instanceof mysqli) $db = $link;
+        elseif (isset($dbConn) && $dbConn instanceof mysqli) $db = $dbConn;
+    }
+}
+
+// Fail-fast with a clear message (dev only) if no mysqli found
+if (!isset($db) || !($db instanceof mysqli)) {
+    http_response_code(500);
+    echo "<h1>500</h1><p>Database connection not found. Expected <code>\$db</code> (mysqli) after including config.</p>";
+    echo "<p>Checked file: " . htmlspecialchars($dbFile) . "</p>";
+    exit;
+}
 
 // ----- Read route param and normalize -----
 // We accept URLs like:
@@ -50,8 +71,13 @@ switch ($route) {
         break;
 
     case 'auth/login':
-        safe_require(__DIR__ . '/views/auth/login.php');
-        break;
+    safe_require(__DIR__ . '/views/auth/login.php');
+    break;
+
+    case 'auth/login-action':
+    safe_require(__DIR__ . '/controllers/login.php');
+    break;
+    
 
     // ----- CONTROLLERS / ACTIONS -----
     case 'auth/register-action':
@@ -61,11 +87,29 @@ switch ($route) {
     case 'auth/check-email':
         safe_require(__DIR__ . '/controllers/check-email.php');
         break;
+    
+    case 'doctor/dashboard':
+    safe_require(__DIR__ . '/views/doctor/dashboard.php');
+    break;
 
-    // Add other controller routes here
-    // case 'auth/login-action':
-    //     safe_require(__DIR__ . '/controllers/login.php');
-    //     break;
+    case 'admin/dashboard':
+    safe_require(__DIR__ . '/views/admin/dashboard.php');
+    break;
+    case 'auth/logout':
+    safe_require(__DIR__ . '/controllers/logout.php');
+    break;
+
+    // Patient medical profile form (GET)
+case 'patient/medical':
+    safe_require(__DIR__ . '/views/patient/medical_profile.php');
+    break;
+
+// Patient medical profile save (POST action)
+case 'patient/medical-save':
+    safe_require(__DIR__ . '/controllers/PatientProfileController.php');
+    $controller = new PatientProfileController($db);
+    $controller->save();
+    break;
 
     // ----- STATIC PAGES / DEFAULT -----
     case '':

@@ -1,33 +1,170 @@
 // MediConnect/assets/js/register.js
+// Clean, robust validation + password toggle + AJAX submit for registration form
 (function () {
-  // base route prefix -> adjust if needed
-  const BASE_PATH = '/MediConnect';
-  // injected BASE_PATH from PHP (guaranteed correct)
-const ROUTE = (r) => '/MediConnect/index.php?route=' + r;
+  // Route helper (relative) — keeps routing simple and portable
+  const ROUTE = (r) => 'index.php?route=' + r;
 
-
-
+  // Regexes / rules
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  const PASS_RE  = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^._-]).{8,64}$/;
+  const NAME_RE  = /^[A-Za-z ]{3,30}$/;
+  const PHONE_RE = /^[6-9]\d{9}$/;
+  const PASS_RE  = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^._-]).{8,50}$/;
 
-  // helper to find the form(s) we need
-  function $$(sel, root=document) { return Array.from(root.querySelectorAll(sel)); }
-  function $(sel, root=document) { return root.querySelector(sel); }
+  // Small SVG icons (kept consistent with register UI)
+  const ICON_EYE = `
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+      <path d="M1 8C1 8 3.5 3.5 8 3.5C12.5 3.5 15 8 15 8C15 8 12.5 12.5 8 12.5C3.5 12.5 1 8 1 8Z"
+            stroke="#374151" stroke-width="1.4"/>
+      <circle cx="8" cy="8" r="2.3" stroke="#374151" stroke-width="1.4"/>
+    </svg>`;
+  const ICON_EYE_SLASH = `
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+      <path d="M3 3L13 13" stroke="#374151" stroke-width="1.4"/>
+      <path d="M1 8C1 8 3.5 3.5 8 3.5C10 3.5 11.8 4.3 13 5.3"
+            stroke="#374151" stroke-width="1.4"/>
+      <path d="M8 12.5C5.7 12.5 3.8 11.3 2.5 10"
+            stroke="#374151" stroke-width="1.4"/>
+    </svg>`;
 
-  function setError(input, msg) {
-    if (!input) return;
-    input.classList.add('is-invalid');
-    const fb = input.nextElementSibling && input.nextElementSibling.classList.contains('invalid-feedback') ? input.nextElementSibling : null;
-    if (fb) fb.textContent = msg || 'Invalid value';
+  // DOM helpers
+  function $(sel, root = document) { return root.querySelector(sel); }
+  function $$(sel, root = document) { return Array.from((root || document).querySelectorAll(sel)); }
+
+  // Ensure every control has a proper .invalid-feedback and aria-describedby
+ // ---------- FEEDBACK / ERROR HELPERS (REPLACE OLD ONES) --------------
+// REPLACE the assignFeedbackIds function with this (keeps everything else intact)
+function assignFeedbackIds(form) {
+  if (!form) return;
+  const controls = form.querySelectorAll('input,select,textarea');
+  controls.forEach((ctrl) => {
+    // skip hidden controls and CSRF field explicitly
+    const t = (ctrl.getAttribute('type') || '').toLowerCase();
+    if (t === 'hidden' || ctrl.name === 'csrf_token') return;
+
+    if (!ctrl.name && !ctrl.id) return;
+
+    // if already wired to a valid invalid-feedback via aria-describedby, keep it
+    const existingDesc = ctrl.getAttribute('aria-describedby');
+    if (existingDesc) {
+      const el = document.getElementById(existingDesc);
+      if (el && el.classList.contains('invalid-feedback')) return;
+    }
+
+    // find the nearest block for feedback
+    const block = ctrl.closest('.mb-3') || ctrl.closest('.col-md-6') || ctrl.closest('.row') || form;
+    if (!block) return;
+
+    // Prefer specific sibling feedback nodes (input-group case or direct sibling)
+    let fb = null;
+    if (ctrl.parentElement && ctrl.parentElement.classList.contains('input-group') &&
+        ctrl.parentElement.nextElementSibling && ctrl.parentElement.nextElementSibling.classList.contains('invalid-feedback')) {
+      fb = ctrl.parentElement.nextElementSibling;
+    } else if (ctrl.nextElementSibling && ctrl.nextElementSibling.classList.contains('invalid-feedback')) {
+      fb = ctrl.nextElementSibling;
+    } else {
+      // fallback: any .invalid-feedback inside same block
+      fb = block.querySelector('.invalid-feedback');
+    }
+
+    // create if missing
+    if (!fb) {
+      fb = document.createElement('div');
+      fb.className = 'invalid-feedback';
+      if (ctrl.parentElement && ctrl.parentElement.classList.contains('input-group')) {
+        ctrl.parentElement.insertAdjacentElement('afterend', fb);
+      } else if (ctrl.nextElementSibling) {
+        ctrl.parentElement.insertBefore(fb, ctrl.nextElementSibling);
+      } else {
+        block.appendChild(fb);
+      }
+    }
+
+    // ensure unique id and set aria-describedby
+    if (!fb.id) {
+      const base = (ctrl.id || ctrl.name || 'ctrl').replace(/\s+/g,'_');
+      let candidate = base + '-fb';
+      let i = 0;
+      while (document.getElementById(candidate)) { i++; candidate = `${base}-fb-${i}`; }
+      fb.id = candidate;
+    }
+    ctrl.setAttribute('aria-describedby', fb.id);
+  });
+}
+
+function findFeedback(input) {
+  if (!input) return null;
+  // 1) aria-describedby
+  const desc = input.getAttribute('aria-describedby');
+  if (desc) {
+    const el = document.getElementById(desc);
+    if (el && el.classList.contains('invalid-feedback')) return el;
   }
-  function clearError(input) {
-    if (!input) return;
-    input.classList.remove('is-invalid');
-    const fb = input.nextElementSibling && input.nextElementSibling.classList.contains('invalid-feedback') ? input.nextElementSibling : null;
-    if (fb) fb.textContent = '';
+  // 2) sibling (direct)
+  if (input.nextElementSibling && input.nextElementSibling.classList.contains('invalid-feedback')) return input.nextElementSibling;
+  // 3) input-group next sibling
+  const parent = input.parentElement;
+  if (parent && parent.nextElementSibling && parent.nextElementSibling.classList.contains('invalid-feedback')) return parent.nextElementSibling;
+  // 4) nearest .mb-3 block
+  const block = input.closest('.mb-3') || input.closest('.col-md-6') || input.closest('form');
+  if (block) {
+    const fb = block.querySelector('.invalid-feedback');
+    if (fb) return fb;
   }
+  return null;
+}
 
-  // numeric-only enforcement
+function setError(input, msg) {
+  if (!input) return;
+  // add invalid class on control (and input-group children)
+  input.classList.add('is-invalid');
+  const ig = input.closest('.input-group');
+  if (ig) ig.querySelectorAll('.form-control').forEach(el => el.classList.add('is-invalid'));
+
+  // find feedback node and set text
+  const fb = findFeedback(input);
+  if (fb) {
+    fb.textContent = msg || 'Invalid value';
+    input.setAttribute('aria-invalid', 'true');
+    fb.setAttribute('role','alert');
+  } else {
+    // fallback: create a visible message after the control
+    const tmp = document.createElement('div');
+    tmp.className = 'invalid-feedback';
+    tmp.textContent = msg || 'Invalid value';
+    if (input.parentElement && input.parentElement.classList.contains('input-group')) {
+      input.parentElement.insertAdjacentElement('afterend', tmp);
+    } else {
+      input.insertAdjacentElement('afterend', tmp);
+    }
+    // ensure aria-describedby
+    if (!tmp.id) {
+      tmp.id = (input.id || input.name || 'tmp') + '-fb-temp';
+    }
+    input.setAttribute('aria-describedby', tmp.id);
+    input.setAttribute('aria-invalid', 'true');
+  }
+}
+
+function clearError(input) {
+  if (!input) return;
+  input.classList.remove('is-invalid');
+  const ig = input.closest('.input-group');
+  if (ig) ig.querySelectorAll('.form-control').forEach(el => el.classList.remove('is-invalid'));
+
+  const fb = findFeedback(input);
+  if (fb) {
+    fb.textContent = '';
+    fb.removeAttribute('role');
+  }
+  input.removeAttribute('aria-invalid');
+}
+
+function safeClear(input) {
+  // allow clearing immediately when field becomes valid
+  clearError(input);
+}
+
+  // numeric-only enforcement utility
   function enforceDigits(el, maxLen) {
     if (!el) return;
     const sanitize = () => { el.value = el.value.replace(/\D+/g, '').slice(0, maxLen || 99); };
@@ -46,136 +183,138 @@ const ROUTE = (r) => '/MediConnect/index.php?route=' + r;
     });
   }
 
+  // Debounce helper
   function debounce(fn, ms) {
     let t;
     return (...args) => { clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
   }
 
-  // server email check
-  const emailCheck = debounce(async (email, input) => {
-    if (!email || !input) return;
-    try {
-      const res = await fetch(ROUTE('auth/check-email'), {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ email })
-      });
-      const json = await res.json();
-      if (json && json.ok && json.exists) setError(input, 'Email already registered.');
-      else clearError(input);
-    } catch (err) {
-      setError(input, 'Server error, try later.');
-    }
-  }, 350);
-
-  // per-field validation
-  function validate(input, force=false) {
+  // Per-field validation logic
+  function validateOne(input, force = false) {
     if (!input) return true;
-    const name = input.name;
     const val = (input.value || '').trim();
     const touched = force || input.dataset.touched === '1';
     if (!touched) return true;
 
-    // required
+    // required check first
     if (input.hasAttribute('required') && !val) {
       setError(input, 'This field is required.');
       return false;
     }
 
-    // rules
-    if (name === 'email') {
-      if (val && !EMAIL_RE.test(val)) { setError(input, 'Enter a valid email.'); return false; }
-      // if format ok -> server check
-      if (val) emailCheck(val, input);
+    switch (input.name) {
+      case 'name':
+        if (!NAME_RE.test(val)) { setError(input, 'Must be 3–30 letters (A–Z).'); return false; }
+        break;
+
+      case 'email':
+        if (!EMAIL_RE.test(val)) { setError(input, 'Enter a valid email.'); return false; }
+        break;
+
+      case 'password':
+        if (!PASS_RE.test(val)) { setError(input, 'Password must be 8–50 chars with upper, lower, number & symbol.'); return false; }
+        break;
+
+      case 'confirm_password':
+        const pass = input.form ? input.form.querySelector('input[name="password"]') : null;
+        if (pass && pass.value !== val) { setError(input, 'Passwords do not match.'); return false; }
+        break;
+
+      case 'phone':
+        if (!PHONE_RE.test(val)) { setError(input, 'Must start with 6–9 and be 10 digits.'); return false; }
+        break;
+
+      case 'dob':
+        if (val) {
+          const d = new Date(val + 'T00:00:00');
+          const today = new Date(); today.setHours(0,0,0,0);
+          if (isNaN(d.getTime()) || d > today) { setError(input, 'Enter a valid past date.'); return false; }
+        }
+        break;
     }
 
-    if (name === 'password') {
-      if (val && !PASS_RE.test(val)) { setError(input, 'Min 8 chars: upper, lower, number & symbol.'); return false; }
-    }
-
-    if (name === 'confirm_password') {
-      const pass = input.form ? input.form.querySelector('input[name="password"]') : null;
-      if (pass && pass.value !== input.value) { setError(input, 'Passwords do not match.'); return false; }
-    }
-
-    if (name === 'phone') {
-      if (val && !/^\d{10}$/.test(val)) { setError(input, 'Enter 10 digits.'); return false; }
-    }
-
-    if (name === 'name') {
-      if (val && (val.length < 2 || val.length > 100)) { setError(input, 'Enter 2–100 characters.'); return false; }
-    }
-
-    if (name === 'dob') {
-      if (val) {
-        const d = new Date(val + 'T00:00:00');
-        const today = new Date(); today.setHours(0,0,0,0);
-        if (isNaN(d.getTime()) || d > today) { setError(input, 'Enter a valid past date.'); return false; }
-      }
-    }
-
-    clearError(input);
+    // If this input already had an error and now passes the checks, clear it.
+    // We use safeClear so we don't overwrite an error set elsewhere unexpectedly.
+    safeClear(input);
     return true;
   }
 
-  // attach behavior to forms with data-validate="auth"
+  // Attach behavior to the form
   function attachForm(form) {
     if (!form) return;
 
-    // enforce digits on phone
+    // make sure feedback nodes exist and aria wired
+    assignFeedbackIds(form);
+
+    // enforce digits on phone input
     const phone = form.querySelector('input[name="phone"]');
     if (phone) enforceDigits(phone, 10);
 
-    // attach input/blur for all controls
+    // input & blur handlers: set touched & validate
     $$( 'input, select, textarea', form ).forEach((inp) => {
       inp.addEventListener('input', () => {
         if (!inp.dataset.touched) inp.dataset.touched = '1';
-        validate(inp, true);
+        validateOne(inp, true);
       });
       inp.addEventListener('blur', () => {
         inp.dataset.touched = '1';
-        validate(inp, true);
+        validateOne(inp, true);
       });
     });
 
-    // password toggle logic (safe, avoids errors)
+    // password toggle wiring (works for both password & confirm fields)
     const tp = form.querySelector('#togglePassword');
     const tc = form.querySelector('#toggleConfirm');
-    if (tp) {
-      tp.addEventListener('click', () => {
-        const p = form.querySelector('input[name="password"]');
-        if (!p) return;
-        if (p.type === 'password') { p.type = 'text'; tp.innerHTML = '🙈'; }
-        else { p.type = 'password'; tp.innerHTML = '👁️'; }
-        p.focus();
-      });
-    }
-    if (tc) {
-      tc.addEventListener('click', () => {
-        const p = form.querySelector('input[name="confirm_password"]');
-        if (!p) return;
-        if (p.type === 'password') { p.type = 'text'; tc.innerHTML = '🙈'; }
-        else { p.type = 'password'; tc.innerHTML = '👁️'; }
-        p.focus();
-      });
-    }
+    if (tp) { tp.innerHTML = ICON_EYE; tp.addEventListener('click', () => {
+      const p = form.querySelector('input[name="password"]'); if (!p) return;
+      if (p.type === 'password') { p.type = 'text'; tp.innerHTML = ICON_EYE_SLASH; }
+      else { p.type = 'password'; tp.innerHTML = ICON_EYE; }
+      p.focus();
+    }); }
+    if (tc) { tc.innerHTML = ICON_EYE; tc.addEventListener('click', () => {
+      const p = form.querySelector('input[name="confirm_password"]'); if (!p) return;
+      if (p.type === 'password') { p.type = 'text'; tc.innerHTML = ICON_EYE_SLASH; }
+      else { p.type = 'password'; tc.innerHTML = ICON_EYE; }
+      p.focus();
+    }); }
 
-    // on submit: validate all, if ok -> AJAX
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    // submit handler
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
 
+      // full validation pass
       let ok = true;
       $$( 'input, select, textarea', form ).forEach((inp) => {
-        // skip optional empty
-        if (!inp.hasAttribute('required') && !inp.value.trim()) { clearError(inp); return; }
-        if (!validate(inp, true)) ok = false;
+        // skip optional empty fields
+        if (!inp.hasAttribute('required') && !(inp.value||'').trim()) { safeClear(inp); return; }
+        if (!validateOne(inp, true)) ok = false;
       });
-
       if (!ok) return;
 
+      // only now check duplicate email on server
+      const emailInput = form.querySelector('input[name="email"]');
+      if (emailInput && EMAIL_RE.test((emailInput.value||'').trim())) {
+        try {
+          const res = await fetch(ROUTE('auth/check-email'), {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email: (emailInput.value||'').trim() })
+          });
+          const j = await res.json();
+          if (j && j.ok && j.exists) {
+            setError(emailInput, 'Email already exists.');
+            return;
+          }
+        } catch (err) {
+          setError(emailInput, 'Server error while checking email.');
+          return;
+        }
+      }
+
+      // gather form data and submit to register action
       const fd = new FormData(form);
       const payload = {};
-      fd.forEach((v,k) => payload[k] = v);
+      fd.forEach((v,k) => payload[k]=v);
 
       const submitBtn = form.querySelector('button[type="submit"]');
       const oldTxt = submitBtn ? submitBtn.textContent : null;
@@ -184,26 +323,29 @@ const ROUTE = (r) => '/MediConnect/index.php?route=' + r;
       try {
         const res = await fetch(ROUTE('auth/register-action'), {
           method: 'POST',
-          headers: {'Content-Type':'application/json','Accept':'application/json'},
+          headers: {'Content-Type': 'application/json','Accept':'application/json'},
           body: JSON.stringify(payload)
         });
-        if (!res.ok) {
-          // try to parse json error body
-          const txt = await res.text();
-          try {
-            const j = JSON.parse(txt);
-            handleServerErrors(j, form);
-          } catch (err) {
-            alert('Server error');
-          }
+        const text = await res.text();
+        let json = null;
+        try { json = JSON.parse(text); } catch(e) { json = null; }
+
+        if (json && json.ok) {
+          if (json.redirect) location.href = json.redirect;
+          else location.reload();
           return;
         }
-        const json = await res.json();
-        if (json.ok) {
-          if (json.redirect) window.location.href = json.redirect;
-          else window.location.reload();
+
+        // show server-side errors
+        if (json && json.errors) {
+          Object.keys(json.errors).forEach((f) => {
+            const el = form.querySelector(`[name="${f}"]`);
+            if (el) setError(el, json.errors[f]);
+          });
+        } else if (json && json.msg) {
+          alert(json.msg);
         } else {
-          handleServerErrors(json, form);
+          alert('Registration failed');
         }
       } catch (err) {
         alert('Network/server error');
@@ -213,21 +355,9 @@ const ROUTE = (r) => '/MediConnect/index.php?route=' + r;
     });
   }
 
-  function handleServerErrors(json, form) {
-    if (!json) return;
-    if (json.errors) {
-      Object.keys(json.errors).forEach((field) => {
-        const el = form.querySelector(`[name="${field}"]`);
-        if (el) setError(el, json.errors[field]);
-      });
-    } else if (json.msg) {
-      alert(json.msg);
-    } else {
-      alert('Registration failed');
-    }
-  }
-
+  // Initialize on DOM ready
   document.addEventListener('DOMContentLoaded', () => {
     $$( 'form[data-validate="auth"]' ).forEach(attachForm);
   });
+
 })();

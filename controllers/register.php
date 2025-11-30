@@ -92,6 +92,7 @@ if (!empty($errors)) {
 }
 
 // check duplicate email
+global $mysqli;
 $patientModel = new PatientModel($mysqli);
 if ($patientModel->emailExists($email)) {
     http_response_code(409);

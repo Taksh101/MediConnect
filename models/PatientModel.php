@@ -60,4 +60,43 @@ class PatientModel {
         $stmt->close();
         return (int)$insertId;
     }
+    // MediConnect/models/PatientModel.php
+
+// ... other methods ...
+
+public function getByEmail(string $email): ?array {
+    // 1. Explicitly select the columns needed by the login controller.
+    $sql = "SELECT 
+                Patient_Id, 
+                Password, 
+                is_profile_complete
+            FROM patients 
+            WHERE Email = ? 
+            LIMIT 1";
+    
+    $stmt = $this->db->prepare($sql);
+    if (!$stmt) {
+        // Log preparation error if needed
+        error_log("Prepare failed (getByEmail): " . $this->db->error);
+        return null;
+    }
+
+    $stmt->bind_param('s', $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        return null;
+    }
+
+    $user = $result->fetch_assoc();
+    $stmt->close();
+
+    return $user;
+}
+
+// ... rest of the class
+
+
 }
