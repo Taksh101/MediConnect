@@ -4,7 +4,6 @@ require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../models/AdminModel.php';
 require_admin_login();
-
 global $db;
 $model = new AdminModel($db);
 
@@ -269,7 +268,7 @@ body {
                             <span class="me-2 text-primary">&#x1f464;</span> Patient Records
                         </a>
                         <a class="quick-btn" href="<?= h(route_url_local('admin/payments')) ?>">
-                            <span class="me-2 text-warning">&#x1f4b8;</span> View Payments/Billing
+                            <span class="me-2 text-warning">&#x1f4b8;</span> View Payments
                         </a>
                     </div>
                 </div>

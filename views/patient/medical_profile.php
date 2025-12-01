@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../../config/auth.php';
+require_patient_login();
+block_if_profile_completed();
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../../config/csrf.php';
 $profile = $profile ?? [];

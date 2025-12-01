@@ -38,3 +38,35 @@ function require_admin_login() {
         exit;
     }
 }
+function is_user_logged_in(): bool {
+    // treat as logged in only if one of the known auth/session keys is present
+    return !empty($_SESSION['admin_id'])
+        || !empty($_SESSION['doctor_id'])
+        || !empty($_SESSION['patient_id'])
+        || !empty($_SESSION['role']);
+}
+
+function require_guest() {
+    // If there's no authenticated session, allow access (guest)
+    if (!is_user_logged_in()) {
+        return;
+    }
+
+    // If authenticated, redirect to role-specific dashboard
+    $role = strtoupper($_SESSION['role'] ?? '');
+
+    if (!empty($_SESSION['admin_id']) || $role === 'ADMIN') {
+        header("Location: /MediConnect/index.php?route=admin/dashboard");
+        exit;
+    }
+
+    if (!empty($_SESSION['doctor_id']) || $role === 'DOCTOR') {
+        header("Location: /MediConnect/index.php?route=doctor/dashboard");
+        exit;
+    }
+
+    if (!empty($_SESSION['patient_id']) || $role === 'PATIENT') {
+        header("Location: /MediConnect/index.php?route=patient/dashboard");
+        exit;
+    }
+}

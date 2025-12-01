@@ -1,4 +1,8 @@
-<?php require_once __DIR__ . '/includes/header.php'; ?>
+<?php
+require_once __DIR__ . '/../config/auth.php';
+require_guest();
+require_once __DIR__ . '/includes/header.php'; 
+?>
 
 <section class="hero-image-hero d-flex align-items-center">
   <div class="hero-overlay"></div>

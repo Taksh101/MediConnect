@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../config/auth.php';
 // views/admin/includes/adminNavbar.php
 
 // FIX: Prevent "Cannot redeclare" Fatal Error by using conditional definitions
