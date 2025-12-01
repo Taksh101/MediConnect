@@ -104,6 +104,8 @@ case 'patient/medical':
     safe_require(__DIR__ . '/views/patient/medical_profile.php');
     break;
 
+
+
 // Patient medical profile save (POST action)
 case 'patient/medical-save':
     safe_require(__DIR__ . '/controllers/PatientProfileController.php');
