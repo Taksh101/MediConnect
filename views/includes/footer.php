@@ -5,7 +5,7 @@
     color: white;
     
     /* FIX: Set to static/relative so it flows with content */
-    position: relative; /* Default flow position */
+    position: fixed; /* Default flow position */
     bottom: 0;
     left: 0;
     right: 0;

@@ -3,14 +3,6 @@
 session_start();
 require_once __DIR__ . '/../models/AdminModel.php';
 require_once __DIR__ . '/../config/database.php'; // provides $mysqli
-/**
- * Ensure the current session belongs to an authenticated admin.
- * If not, redirect to the login page and exit.
- */
-
-/**
- * Dashboard action
- */
 function dashboard() {
 global $mysqli;
     require_admin_login();

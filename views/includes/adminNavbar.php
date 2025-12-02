@@ -33,7 +33,7 @@ $adminName = $_SESSION['admin_name'] ?? 'Admin';
     background: linear-gradient(90deg,#0d6efd 0%, #084ccd 100%);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     padding: 0.5rem 1rem;
-    height: 60px; /* Fixed height for precise calculation */
+    min-height: 60px; /* Fixed height for precise calculation */
     /* FIX: Ensure sticky position for proper scrolling behaviour */
     position: fixed; 
     top: 0px;
@@ -92,6 +92,25 @@ $adminName = $_SESSION['admin_name'] ?? 'Admin';
 
 /* keep links right-aligned */
 .navbar-premium .nav-right { margin-left: auto; display:flex; gap:.25rem; align-items:center; }
+/* FIX: On small screens, stack links vertically & left align them */
+@media (max-width: 991.98px) {
+    .navbar-premium .nav-right {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        padding: .5rem 0;
+        gap: .5rem;
+    }
+
+    .navbar-premium .nav-right .nav-link,
+    .navbar-premium .logout-link {
+        width: 100%;
+        text-align: left !important;
+        padding-left: .75rem;
+    }
+}
+
 </style>
 <body>
 <nav class="navbar navbar-expand-lg navbar-premium">
@@ -106,11 +125,11 @@ $adminName = $_SESSION['admin_name'] ?? 'Admin';
             <ul class="navbar-nav"></ul>
             <ul class="navbar-nav nav-right">
                 <li class="nav-item"><a class="nav-link <?= navActive('admin/dashboard') ?>" href="<?= route_url('admin/dashboard') ?>">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('admin/doctors') ?>" href="<?= route_url('admin/doctors') ?>">Doctors</a></li>
                 <li class="nav-item"><a class="nav-link <?= navActive('admin/specialities') ?>" href="<?= route_url('admin/specialities') ?>">Specialities</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('admin/doctors') ?>" href="<?= route_url('admin/doctors') ?>">Doctors</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('admin/patients') ?>" href="<?= route_url('admin/patients') ?>">Patients</a></li>
                 <li class="nav-item"><a class="nav-link <?= navActive('admin/appointments') ?>" href="<?= route_url('admin/appointments') ?>">Appointments</a></li>
                 <li class="nav-item"><a class="nav-link <?= navActive('admin/payments') ?>" href="<?= route_url('admin/payments') ?>">Payments</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('admin/patients') ?>" href="<?= route_url('admin/patients') ?>">Patients</a></li>
                 <li class="nav-item ms-2">
                     <a class="nav-link logout-link" href="<?= route_url('auth/logout') ?>">Logout</a>
                 </li>

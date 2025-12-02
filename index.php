@@ -98,6 +98,35 @@ switch ($route) {
     case 'auth/logout':
     safe_require(__DIR__ . '/controllers/logout.php');
     break;
+    case 'admin/specialities':
+    safe_require(__DIR__ . '/controllers/SpecialityController.php');
+    index_specialities();
+    break;
+
+case 'admin/specialities/create':
+    safe_require(__DIR__ . '/controllers/SpecialityController.php');
+    create_speciality();
+    break;
+
+case 'admin/specialities/store':
+    safe_require(__DIR__ . '/controllers/SpecialityController.php');
+    store_speciality();
+    break;
+
+case 'admin/specialities/edit':
+    safe_require(__DIR__ . '/controllers/SpecialityController.php');
+    edit_speciality();
+    break;
+
+case 'admin/specialities/update':
+    safe_require(__DIR__ . '/controllers/SpecialityController.php');
+    update_speciality();
+    break;
+
+case 'admin/specialities/delete':
+    safe_require(__DIR__ . '/controllers/SpecialityController.php');
+    delete_speciality();
+    break;
 
     // Patient medical profile form (GET)
 case 'patient/medical':
