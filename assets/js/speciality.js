@@ -83,12 +83,12 @@
       }
       // integer check
       if (!/^\d+$/.test(raw)) {
-        setError(durationEl, fbDuration, 'Duration must be a whole number');
+        setError(durationEl, fbDuration, 'Duration must be a positive integer');
         return false;
       }
       const v = Number(raw);
       if (!Number.isInteger(v) || v < 5 || v > 45) {
-        setError(durationEl, fbDuration, 'Duration must be a whole number between 5 and 45');
+        setError(durationEl, fbDuration, 'Duration must be a positive integer between 5 and 45');
         return false;
       }
       clearError(durationEl, fbDuration);
@@ -103,12 +103,12 @@
       }
       // integer >= 0
       if (!/^\d+$/.test(raw)) {
-        setError(feeEl, fbFee, 'Fee must be a whole number (0 or greater)');
+        setError(feeEl, fbFee, 'Fee must be a positive integer');
         return false;
       }
       const v = Number(raw);
       if (!Number.isInteger(v) || v < 0) {
-        setError(feeEl, fbFee, 'Fee must be 0 or greater');
+        setError(feeEl, fbFee, 'Fee must be a positive integer');
         return false;
       }
       clearError(feeEl, fbFee);

@@ -127,6 +127,54 @@ case 'admin/specialities/delete':
     safe_require(__DIR__ . '/controllers/SpecialityController.php');
     delete_speciality();
     break;
+case 'admin/doctors':
+safe_require(__DIR__ . '/controllers/DoctorsController.php');
+index_doctors();
+break;
+
+case 'admin/doctors/create':
+safe_require(__DIR__ . '/controllers/DoctorsController.php');
+create_doctor();
+break;
+
+case 'admin/doctors/store':
+safe_require(__DIR__ . '/controllers/DoctorsController.php');
+store_doctor();
+break;
+case 'admin/doctors/availability/edit':
+    safe_require(__DIR__ . '/controllers/DoctorsController.php');
+    edit_availability();
+    break;
+
+case 'admin/doctors/availability/update':
+    safe_require(__DIR__ . '/controllers/DoctorsController.php');
+    update_availability();
+    break;
+
+case 'admin/doctors/edit':
+safe_require(__DIR__ . '/controllers/DoctorsController.php');
+edit_doctor();
+break;
+
+case 'admin/doctors/update':
+safe_require(__DIR__ . '/controllers/DoctorsController.php');
+update_doctor();
+break;
+
+case 'admin/doctors/delete':
+safe_require(__DIR__ . '/controllers/DoctorsController.php');
+delete_doctor();
+break;
+
+case 'admin/doctors/view':
+safe_require(__DIR__ . '/controllers/DoctorsController.php');
+view_doctor();
+break;
+
+case 'admin/doctors/availability':
+safe_require(__DIR__ . '/controllers/DoctorsController.php');
+manage_availability();
+break;
 
     // Patient medical profile form (GET)
 case 'patient/medical':
