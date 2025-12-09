@@ -91,7 +91,7 @@ CREATE TABLE payments (
   Payment_Id INT AUTO_INCREMENT PRIMARY KEY,
   Patient_Id INT,
   Amount DECIMAL(10,2) NOT NULL,
-  Method ENUM('UPI','Card','NetBanking','Wallet') NOT NULL,
+  Method ENUM('UPI','Card') NOT NULL,
   Status ENUM('APPROVED','PENDING','REJECTED'),
   Transaction_Id VARCHAR(100) NOT NULL,
   Paid_At DATETIME,
