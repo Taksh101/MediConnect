@@ -102,9 +102,8 @@ class PatientMedicalProfile
         $wkg = $data['Weight_KG'] === null ? null : floatval($data['Weight_KG']);
         $bmi = $data['BMI'] === null ? null : floatval($data['BMI']);
 
-        // types: i (patient_id) + 11s + 3d
         $stmt->bind_param(
-            "issssssssssdddd",
+            "isssssssssssddd",
             $patientId, $bg, $diabetes, $bp, $heart, $resp,
             $all, $med, $sur, $chro, $smoker, $alc,
             $hcm, $wkg, $bmi

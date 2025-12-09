@@ -26,24 +26,19 @@ function route_url_local($r){ $base = defined('BASE_PATH') ? rtrim(BASE_PATH,'/'
 
 // Helper function to format status badges
 function get_status_badge($status) {
-    // Cleaned up function body to remove hidden characters
     $status = h($status);
     $class = 'bg-secondary';
     switch ($status) {
-        case 'Approved':
-            $class = 'bg-success';
-            break;
-        case 'Pending':
-            $class = 'bg-warning text-dark';
-            break;
-        case 'Cancelled':
-            $class = 'bg-danger';
-            break;
+        case 'Approved': $class = 'bg-success'; break;
+        case 'Pending': $class = 'bg-warning text-dark'; break;
+        case 'Completed': $class = 'bg-success'; break;
+        case 'Rejected': case 'Cancelled': $class = 'bg-danger'; break;
+        case 'Missed': $class = 'bg-secondary'; break;
     }
-    return "<span class=\"badge {$class}\">{$status}</span>";
+    return "<span class=\"badge {$class} rounded-pill px-3 py-1 fw-normal\">{$status}</span>";
 }
+$pageTitle = 'MediConnect - Admin Dashboard';
 ?>
-
 <?php include __DIR__ . '/../includes/adminNavbar.php'; ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -200,50 +195,80 @@ body {
     </div>
     
     <div class="row g-4 main-content-row mb-4">
-        
+        <!-- Main Content Area -->
         <div class="col-lg-8">
-            <div class="card content-card shadow-sm h-100">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h5 class="mb-0 fw-semibold text-dark">Today's Appointments</h5>
-                    <!-- <a href="<?= h(route_url_local('admin/appointments')) ?>" class="btn btn-sm btn-outline-primary">View All</a> -->
-                </div>
-
-                <div class="table-area">
-                    <?php if (empty($todays)): ?>
-                        <div class="p-5 text-center empty-content-box">
-                            <h4 class="text-muted">No Appointments Today</h4>
-                            <p class="small text-secondary">The schedule is clear. This dashboard shows the top <?= APPOINTMENTS_PER_PAGE ?> appointments.</p>
-                        </div>
-                    <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-borderless mb-0">
-                                <thead class="small">
-                                    <tr>
-                                        <th style="width:5%">#</th>
-                                        <th style="width:15%">Time</th>
-                                        <th style="width:30%">Patient</th>
-                                        <th style="width:30%">Doctor</th>
-                                        <th style="width:20%">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php 
-                                    foreach($displayAppointments as $i => $a): 
-                                    ?>
-                                        <tr>
-                                            <td><?= $i + 1 ?></td>
-                                            <td class="fw-medium text-primary"><?= h(substr($a['Appointment_Time'] ?? '',0,5)) ?></td>
-                                            <td><?= h($a['patient_name'] ?? '—') ?></td>
-                                            <td><?= h($a['doctor_name'] ?? '—') ?></td>
-                                            <td><?= get_status_badge($a['Status'] ?? '—') ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php endif; ?>
+            <div class="modern-card h-100">
+                <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark">Today's Appointments</h5>
+                        <small class="text-muted">Today's system-wide appointments</small>
+                    </div>
+                     <!-- <a href="<?= route_url_local('admin/appointments') ?>" class="btn btn-sm btn-light border text-primary fw-medium">View All</a> -->
                 </div>
                 
+                <div class="table-responsive">
+                    <?php if (empty($displayAppointments)): ?>
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-check text-muted opacity-25" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-3">No appointments scheduled for today.</p>
+                        </div>
+                    <?php else: ?>
+                        <table class="table table-custom mb-0 align-middle">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 text-uppercase text-muted small fw-bold" style="width: 30%;">Time</th>
+                                    <th class="text-uppercase text-muted small fw-bold" style="width: 25%;">Patient</th>
+                                    <th class="text-uppercase text-muted small fw-bold" style="width: 25%;">Doctor</th>
+                                    <th class="text-uppercase text-muted small fw-bold" style="width: 20%;">Status</th>
+                                    <th class="text-end pe-4 text-uppercase text-muted small fw-bold">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($displayAppointments as $a): ?>
+                                    <tr>
+                                        <!-- Time Column -->
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-light rounded p-2 me-3 text-center" style="min-width: 50px;">
+                                                    <div class="fw-bold text-dark"><?= date('h:i', strtotime($a['Appointment_Time'])) ?></div>
+                                                    <div class="small text-muted text-uppercase"><?= date('A', strtotime($a['Appointment_Time'])) ?></div>
+                                                </div>
+                                                <div>
+                                                    <div class="small text-muted">Duration</div>
+                                                    <div class="fw-semibold text-dark">60 min</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        
+                                        <!-- Patient Column -->
+                                        <td>
+                                            <div class="fw-bold text-dark"><?= h($a['patient_name']) ?></div>
+                                            <div class="small text-muted"><?= h($a['patient_phone']) ?></div>
+                                        </td>
+
+                                        <!-- Doctor Column -->
+                                        <td>
+                                            <div class="fw-bold text-dark"><?= h($a['doctor_name']) ?></div>
+                                            <div class="small text-muted">Specialist</div>
+                                        </td>
+
+                                        <!-- Status Column -->
+                                        <td>
+                                            <?= get_status_badge($a['Status']) ?>
+                                        </td>
+                                        
+                                        <!-- Action Column -->
+                                        <td class="text-end pe-4">
+                                             <a href="<?= route_url_local('admin/appointments/view&id=' . $a['Appointment_Id']) ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+                </div>
                 <div class="card-footer bg-white py-3 border-top d-flex justify-content-between align-items-center">
                     <div class="small text-muted">Showing <?= $showingCount ?> of <?= $todaysCount ?> total appointments today.</div>
                     <a href="<?= h(route_url_local('admin/appointments')) ?>" class="small fw-semibold text-decoration-none">View All &rarr;</a>

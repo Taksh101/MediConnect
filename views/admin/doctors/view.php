@@ -12,6 +12,7 @@ function getStatusBadge($status) {
 
 $initial = isset($doctor['Name']) && !empty($doctor['Name']) ? strtoupper($doctor['Name'][0]) : 'D';
 
+$pageTitle = 'MediConnect - Doctor Profile';
 include __DIR__ . '/../../includes/adminNavbar.php';
 ?>
 

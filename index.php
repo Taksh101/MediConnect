@@ -98,6 +98,48 @@ switch ($route) {
     case 'auth/logout':
     safe_require(__DIR__ . '/controllers/logout.php');
     break;
+
+    case 'auth/check_status':
+    safe_require(__DIR__ . '/controllers/check-status.php');
+    break;
+
+    // ----- DOCTOR SIDE -----
+    case 'doctor/appointments':
+        safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
+        $controller = new DoctorAppointmentsController($db);
+        $controller->index();
+        break;
+    
+    case 'doctor/appointments/view':
+        safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
+        $controller = new DoctorAppointmentsController($db);
+        $controller->view();
+        break;
+
+    case 'doctor/appointments/update_status':
+        safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
+        $controller = new DoctorAppointmentsController($db);
+        $controller->update_status();
+        break;
+
+    case 'doctor/appointments/save_notes':
+        safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
+        $controller = new DoctorAppointmentsController($db);
+        $controller->save_notes();
+        break;
+
+    case 'doctor/patients/view':
+        safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
+        $controller = new DoctorAppointmentsController($db);
+        $controller->view_patient();
+        break;
+
+    case 'doctor/profile':
+        safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
+        $controller = new DoctorAppointmentsController($db);
+        $controller->profile();
+        break;
+
     case 'admin/specialities':
     safe_require(__DIR__ . '/controllers/SpecialityController.php');
     index_specialities();
@@ -175,22 +217,121 @@ case 'admin/doctors/availability':
 safe_require(__DIR__ . '/controllers/DoctorsController.php');
 manage_availability();
 break;
+// ----- ADMIN / PATIENTS -----
+// ----- ADMIN / PATIENTS -----
+case 'admin/patients':
+    safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
+    $controller = new AdminPatientsController($db);
+    $controller->index();
+    break;
 
-    // Patient medical profile form (GET)
-case 'patient/medical':
-    safe_require(__DIR__ . '/views/patient/medical_profile.php');
+case 'admin/patients/view':
+    safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
+    $controller = new AdminPatientsController($db);
+    $controller->view();
+    break;
+
+    case 'admin/patients/appointments':
+    safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
+    $controller = new AdminPatientsController($db);
+    $controller->appointments();
+    break;
+
+case 'admin/patients/delete':
+    safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
+    $controller = new AdminPatientsController($db);
+    $controller->delete();
     break;
 
 
+    // ----- ADMIN / APPOINTMENTS -----
+case 'admin/appointments':
+    safe_require(__DIR__ . '/controllers/AdminAppointmentsController.php');
+    $controller = new AdminAppointmentsController($db);
+    $controller->index();
+    break;
+case 'admin/appointments/view':
+    safe_require(__DIR__ . '/controllers/AdminAppointmentsController.php');
+    $controller = new AdminAppointmentsController($db);
+    $controller->view();
+    break;
 
-// Patient medical profile save (POST action)
+    // ----- ADMIN / PAYMENTS -----
+case 'admin/payments':
+    safe_require(__DIR__ . '/controllers/AdminPaymentsController.php');
+    $controller = new AdminPaymentsController($db);
+    $controller->index();
+    break;
+
+case 'admin/payments/view':
+    safe_require(__DIR__ . '/controllers/AdminPaymentsController.php');
+    $controller = new AdminPaymentsController($db);
+    $controller->view();
+    break;
+
+
+    // Patient medical profile form (GET)
+case 'patient/dashboard':
+    safe_require(__DIR__ . '/controllers/PatientDashboardController.php');
+    $controller = new PatientDashboardController($db);
+    $controller->index();
+    break;
+
+    // Patient Booking Flow
+case 'patient/book/start':
+    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+    $controller = new PatientBookingController($db);
+    $controller->start();
+    break;
+case 'patient/book/step2':
+    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+    $controller = new PatientBookingController($db);
+    $controller->step2();
+    break;
+case 'patient/book/step3':
+    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+    $controller = new PatientBookingController($db);
+    $controller->step3();
+    break;
+case 'patient/book/step4':
+    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+    $controller = new PatientBookingController($db);
+    $controller->step4();
+    break;
+case 'patient/book/complete':
+    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+    $controller = new PatientBookingController($db);
+    $controller->complete();
+    break;
+case 'patient/book/success':
+    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+    $controller = new PatientBookingController($db);
+    $controller->success();
+    break;
+
+case 'patient/appointments':
+    safe_require(__DIR__ . '/controllers/PatientAppointmentsController.php');
+    $controller = new PatientAppointmentsController($db);
+    $controller->index();
+    break;
+
+case 'patient/appointments/view':
+    safe_require(__DIR__ . '/controllers/PatientAppointmentsController.php');
+    $controller = new PatientAppointmentsController($db);
+    $controller->view();
+    break;
+
+case 'patient/profile':
+    safe_require(__DIR__ . '/controllers/PatientProfileController.php');
+    $controller = new PatientProfileController($db);
+    $controller->show();
+    break;
+
 case 'patient/medical-save':
     safe_require(__DIR__ . '/controllers/PatientProfileController.php');
     $controller = new PatientProfileController($db);
     $controller->save();
     break;
-
-    // ----- STATIC PAGES / DEFAULT -----
     case '':
     case 'home':
     case 'landing':

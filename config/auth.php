@@ -1,7 +1,15 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) session_start();
 
+// Helper to prevent browser caching for protected pages
+function prevent_cache_headers() {
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
+}
+
 function require_patient_login() {
+    prevent_cache_headers();
     if (empty($_SESSION['patient_id']) || ($_SESSION['role'] ?? '') !== 'PATIENT') {
         header("Location: /MediConnect/index.php?route=auth/login");
         exit;
@@ -26,6 +34,7 @@ function block_if_profile_completed() {
 }
 
 function require_doctor_login() {
+    prevent_cache_headers();
     if (empty($_SESSION['doctor_id']) || ($_SESSION['role'] ?? '') !== 'DOCTOR') {
         header("Location: /MediConnect/index.php?route=auth/login");
         exit;
@@ -33,6 +42,7 @@ function require_doctor_login() {
 }
 
 function require_admin_login() {
+    prevent_cache_headers();
     if (empty($_SESSION['admin_id']) || ($_SESSION['role'] ?? '') !== 'ADMIN') {
         header("Location: /MediConnect/index.php?route=auth/login");
         exit;

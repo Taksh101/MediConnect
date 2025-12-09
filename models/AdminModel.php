@@ -46,7 +46,7 @@ class AdminModel {
      */
     public function getTodaysAppointments(): array {
         $sql = "SELECT a.Appointment_Id, a.Appointment_Date, a.Appointment_Time, a.Status,
-                       p.Patient_Id, p.Name AS patient_name,
+                       p.Patient_Id, p.Name AS patient_name, p.Phone AS patient_phone,
                        d.Doctor_Id, d.Name AS doctor_name,
                        s.Speciality_Id, s.Speciality_Name
                 FROM Appointments a

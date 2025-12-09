@@ -3,13 +3,19 @@
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
+require_once __DIR__ . '/../models/PatientModel.php';
+require_once __DIR__ . '/../models/PatientMedicalProfile.php';
+require_once __DIR__ . '/../config/auth.php';
+
 class PatientProfileController
 {
     private mysqli $db;
+    private PatientModel $patientModel;
 
     public function __construct(mysqli $db)
     {
         $this->db = $db;
+        $this->patientModel = new PatientModel($db);
     }
 
     /**
@@ -17,27 +23,29 @@ class PatientProfileController
      */
     public function show()
     {
-        // include CSRF helper and model safely
+        // include CSRF helper safely
         $csrfPath = __DIR__ . '/../config/csrf.php';
-        if (!file_exists($csrfPath)) {
-            // friendly error page
-            http_response_code(500);
-            echo "<h1>500</h1><p>Missing file: " . htmlspecialchars($csrfPath) . "</p>";
+        if (file_exists($csrfPath)) require_once $csrfPath;
+
+        require_patient_login();
+
+        $patientId = (int)$_SESSION['patient_id'];
+        
+        // Fetch full patient data (Basic + Medical)
+        $patient = $this->patientModel->findByIdWithProfile($patientId);
+        
+        if (!$patient) {
+            // Patient not found ? invalid session
+            session_destroy();
+            header("Location: " . (defined('BASE_PATH') ? BASE_PATH : '') . "/index.php");
             exit;
         }
-        require_once $csrfPath;
 
-        $modelPath = __DIR__ . '/../models/PatientMedicalProfile.php';
-        if (file_exists($modelPath)) require_once $modelPath;
+        // For view compatibility
+        $profile = $patient['medical_profile'] ?? [];
 
-        $profile = null;
-        if (!empty($_SESSION['patient_id']) && class_exists('PatientMedicalProfile')) {
-            $pm = new PatientMedicalProfile($this->db);
-            $profile = $pm->getByPatient(intval($_SESSION['patient_id']));
-        }
-
-        // include the view (view should call csrf_field())
-        $viewPath = __DIR__ . '/../views/patient/medical_profile.php';
+        // include the profile view
+        $viewPath = __DIR__ . '/../views/patient/profile.php';
         if (file_exists($viewPath)) {
             require $viewPath;
             return;
@@ -79,9 +87,29 @@ class PatientProfileController
                 return;
             }
 
+            $patientId = intval($_SESSION['patient_id']);
+
             // simple helper
             $get = function($k, $d='') { return isset($_POST[$k]) ? trim((string)$_POST[$k]) : $d; };
 
+            // --- Basic Info Update ---
+            $name = $get('name');
+            $address = $get('address');
+            
+            if (empty($name)) {
+                echo json_encode(['status'=>'error','message'=>'Name is required']); 
+                return; 
+            }
+            
+            // Allow name update? Yes. Validate len
+            if (strlen($name) > 100) { echo json_encode(['status'=>'error','message'=>'Name too long']); return; }
+            if (strlen($address) > 255) { echo json_encode(['status'=>'error','message'=>'Address too long']); return; }
+
+            // Update Basic Info
+            $this->patientModel->updateBasicInfo($patientId, $name, $address);
+
+
+            // --- Medical Profile Update ---
             // allowed lists
             $allowed_bg = ['A+','A-','B+','B-','AB+','AB-','O+','O-','Unknown'];
             $allowed_yesno = ['Yes','No'];
@@ -141,16 +169,10 @@ class PatientProfileController
             }
 
             // load model
-            $modelPath = __DIR__ . '/../models/PatientMedicalProfile.php';
-            if (!file_exists($modelPath)) {
-                echo json_encode(['status'=>'error','message'=>'Server misconfigured (model missing)']);
-                return;
-            }
-            require_once $modelPath;
             $pm = new PatientMedicalProfile($this->db);
 
             $data = [
-                'Patient_Id' => intval($_SESSION['patient_id']),
+                'Patient_Id' => $patientId,
                 'Blood_Group' => $blood_group,
                 'Diabetes' => $diabetes,
                 'Blood_Pressure' => $bp,
@@ -169,28 +191,23 @@ class PatientProfileController
 
             $ok = $pm->save($data);
             if ($ok) {
-                // mark DB as complete (existing)
-$stmt = $this->db->prepare("UPDATE Patients SET Is_Profile_Complete = 1 WHERE Patient_Id = ?");
-$pid = intval($_SESSION['patient_id']);
-$stmt->bind_param("i", $pid);
-$stmt->execute();
+                // mark DB as complete (update is_profile_complete just in case)
+                $sql = "UPDATE Patients SET Is_Profile_Complete = 1 WHERE Patient_Id = ?";
+                $stmt = $this->db->prepare($sql);
+                $stmt->bind_param("i", $patientId);
+                $stmt->execute();
+                $stmt->close();
+                
+                $_SESSION['is_profile_complete'] = 1;
 
-// also update session flag so further routing checks see this immediately
-// use the exact session key your app relies on for profile-complete checks.
-// below uses 'is_profile_complete' — change if your auth uses a different key.
-$_SESSION['is_profile_complete'] = 1;
-
-// respond success
-echo json_encode(['status' => 'success']);
-return;
-
+                echo json_encode(['status' => 'success']);
+                return;
             }
 
-            echo json_encode(['status'=>'error','message'=>'DB save failed']);
+            echo json_encode(['status'=>'error','message'=>'Medical profile save failed']);
             return;
 
         } catch (Throwable $e) {
-            // dev-friendly message — in production hide details
             http_response_code(500);
             echo json_encode(['status'=>'error','message'=>'Server error','debug'=>$e->getMessage()]);
             return;

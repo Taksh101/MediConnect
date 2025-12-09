@@ -9,9 +9,10 @@ $csrf = csrf_token();
 
 <head>
     <meta charset="utf-8">
-    <title>Login - MediConnect</title>
+    <title>MediConnect - Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="icon" type="image/png" href="<?= BASE_PATH ?>/assets/favicon.png">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -105,7 +106,7 @@ $csrf = csrf_token();
   <label class="form-label">Password</label>
   <div class="input-group">
       <input id="passwordInput" type="password" name="password" class="form-control"
-             placeholder="Enter password" required>
+             placeholder="Enter password" required autocomplete="off">
       <button type="button" id="togglePassword" class="input-group-text btn-icon">
         <!-- default eye icon -->
         <svg width="18" height="18" viewBox="0 0 16 16" fill="none">

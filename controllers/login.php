@@ -91,8 +91,8 @@ if ($role === "DOCTOR") {
         exit;
     }
 
-    // check active status
-    if ($user['Status'] !== 'ACTIVE') {
+    // check active status (AVAILABLE or UNAVAILABLE)
+    if (!in_array($user['Status'], ['AVAILABLE', 'UNAVAILABLE'])) {
         echo json_encode(['ok' => false, 'errors' => ['email' => 'Account disabled, contact admin']]);
         exit;
     }

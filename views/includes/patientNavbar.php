@@ -1,15 +1,13 @@
 <?php
 require_once __DIR__ . '/../../config/auth.php';
-// views/admin/includes/adminNavbar.php
+// views/includes/patientNavbar.php
 
-// FIX: Prevent "Cannot redeclare" Fatal Error by using conditional definitions
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 if (!function_exists('navActive')) {
     function navActive(string $key): string {
         $current = $_GET['route'] ?? '';
         if ($current === $key) return 'active-link';
-        if (str_contains($_SERVER['REQUEST_URI'], $key)) return 'active-link';
         return '';
     }
 }
@@ -21,8 +19,7 @@ if (!function_exists('route_url')) {
     }
 }
 
-$adminName = $_SESSION['admin_name'] ?? 'Admin';
-$pageTitle = $pageTitle ?? 'MediConnect - Admin';
+$pageTitle = $pageTitle ?? 'MediConnect - Patient';
 ?>
 <!doctype html>
 <html lang="en">
@@ -35,9 +32,9 @@ $pageTitle = $pageTitle ?? 'MediConnect - Admin';
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-/* navbar theme (Enhanced Premium Look) */
+/* navbar theme (Enhanced Premium Look - Patient) */
 .navbar-premium {
-    /* Enhanced Premium Look - Matching Patient/Doctor Theme */
+    /* Using teal/indigo gradient to distinguish but keep premium feel */
     background: linear-gradient(90deg, #4f46e5 0%, #4338ca 100%);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     padding: 0.5rem 1rem;
@@ -80,10 +77,10 @@ $pageTitle = $pageTitle ?? 'MediConnect - Admin';
     bottom:0;
     height:2px;
     border-radius:2px;
-    background: #a5b4fc; /* Light indigo accent */
+    background: #a5b4fc; /* Light indigo for patient accent */
 }
 .navbar-premium .logout-link { 
-    color:#fbbf24 !important; /* Amber */
+    color:#fbbf24 !important; /* Amber for logout */
     font-weight:700; 
     background: rgba(255,255,255,0.1); 
     padding:.45rem .8rem; 
@@ -91,14 +88,12 @@ $pageTitle = $pageTitle ?? 'MediConnect - Admin';
     border: 1px solid rgba(251,191,36,0.5);
 }
 .navbar-premium .logout-link:hover { 
-    background: rgba(255,193,7,0.2); 
+    background: rgba(251,191,36,0.2); 
     color:#fff !important; 
     border-color: #fff;
 }
 
-/* keep links right-aligned */
 .navbar-premium .nav-right { margin-left: auto; display:flex; gap:.25rem; align-items:center; }
-/* FIX: On small screens, stack links vertically & left align them */
 @media (max-width: 991.98px) {
     .navbar-premium .nav-right {
         width: 100%;
@@ -108,7 +103,6 @@ $pageTitle = $pageTitle ?? 'MediConnect - Admin';
         padding: .5rem 0;
         gap: .5rem;
     }
-
     .navbar-premium .nav-right .nav-link,
     .navbar-premium .logout-link {
         width: 100%;
@@ -121,27 +115,24 @@ $pageTitle = $pageTitle ?? 'MediConnect - Admin';
 <body>
 <nav class="navbar navbar-expand-lg navbar-premium">
     <div class="container-fluid">
-        <a class="navbar-brand" href="<?= route_url('admin/dashboard') ?>">MediConnect Admin</a>
+        <a class="navbar-brand" href="<?= route_url('patient/dashboard') ?>">MediConnect</a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#patientNav">
             <span class="navbar-toggler-icon" style="filter:invert(1)"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="adminNav">
+        <div class="collapse navbar-collapse" id="patientNav">
             <ul class="navbar-nav"></ul>
             <ul class="navbar-nav nav-right">
-                <li class="nav-item"><a class="nav-link <?= navActive('admin/dashboard') ?>" href="<?= route_url('admin/dashboard') ?>">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('admin/specialities') ?>" href="<?= route_url('admin/specialities') ?>">Specialities</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('admin/doctors') ?>" href="<?= route_url('admin/doctors') ?>">Doctors</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('admin/patients') ?>" href="<?= route_url('admin/patients') ?>">Patients</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('admin/appointments') ?>" href="<?= route_url('admin/appointments') ?>">Appointments</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('admin/payments') ?>" href="<?= route_url('admin/payments') ?>">Payments</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('patient/dashboard') ?>" href="<?= route_url('patient/dashboard') ?>">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('patient/book/start') ?>" href="<?= route_url('patient/book/start') ?>">Book Appointment</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('patient/appointments') ?>" href="<?= route_url('patient/appointments') ?>">My Appointments</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('patient/profile') ?>" href="<?= route_url('patient/profile') ?>">Profile</a></li>
                 <li class="nav-item ms-2">
                     <a class="nav-link logout-link" href="<?= route_url('auth/logout') ?>">Logout</a>
                 </li>
             </ul>
         </div>
-    </div>
     </div>
 </nav>
 

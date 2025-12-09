@@ -12,6 +12,63 @@ class DoctorModel {
     return (int)($row['c'] ?? 0);
 }
 
+    // --- Statistics for Dashboard ---
+    public function countMyUniquePatients($doctorId) {
+        // Count distinct patients from appointments for this doctor
+        $sql = "SELECT COUNT(DISTINCT Patient_Id) as c FROM Appointments WHERE Doctor_Id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('i', $doctorId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_assoc();
+        return (int)($row['c'] ?? 0);
+    }
+
+    public function countMyAppointments($doctorId) {
+        $sql = "SELECT COUNT(*) as c FROM Appointments WHERE Doctor_Id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('i', $doctorId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_assoc();
+        return (int)($row['c'] ?? 0);
+    }
+
+    public function countMyTodaysAppointments($doctorId) {
+        $sql = "SELECT COUNT(*) as c FROM Appointments WHERE Doctor_Id = ? AND Appointment_Date = CURDATE()";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('i', $doctorId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_assoc();
+        return (int)($row['c'] ?? 0);
+    }
+
+    public function countMyPendingAppointments($doctorId) {
+        $sql = "SELECT COUNT(*) as c FROM Appointments WHERE Doctor_Id = ? AND Status = 'Pending'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('i', $doctorId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_assoc();
+        return (int)($row['c'] ?? 0);
+    }
+
+    public function getMyTodaysAppointments($doctorId, $limit) {
+        $sql = "SELECT a.Appointment_Id, a.Appointment_Date, a.Appointment_Time, a.Status,
+                       p.Patient_Id, p.Name AS patient_name
+                FROM Appointments a
+                LEFT JOIN Patients p ON a.Patient_Id = p.Patient_Id
+                WHERE a.Doctor_Id = ? AND a.Appointment_Date = CURDATE()
+                ORDER BY a.Appointment_Time ASC
+                LIMIT ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('ii', $doctorId, $limit);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        return $res->fetch_all(MYSQLI_ASSOC);
+    }
+
     public function getByEmail(string $email): ?array {
         $sql = "SELECT * FROM doctors WHERE Email = ? LIMIT 1";
         $stmt = $this->db->prepare($sql);
@@ -284,4 +341,14 @@ public function overlaps(int $doctorId, string $day, string $start, string $end,
 }
 
 
+    public function findBySpeciality($specialityId) {
+        $sql = "SELECT * FROM Doctors WHERE Speciality_Id = ? AND Status = 'AVAILABLE' ORDER BY Name ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('i', $specialityId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $rows = $res->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $rows;
+    }
 }
