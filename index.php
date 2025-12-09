@@ -65,273 +65,261 @@ function safe_require($path) {
 // very small router
 switch ($route) {
 
-    // ----- AUTH VIEWS -----
+    // ============================
+    // AUTHENTICATION
+    // ============================
+    case 'auth/login':
+        safe_require(__DIR__ . '/views/auth/login.php');
+        break;
+    case 'auth/login-action':
+        safe_require(__DIR__ . '/controllers/login.php');
+        break;
     case 'auth/register':
         safe_require(__DIR__ . '/views/auth/register.php');
         break;
-
-    case 'auth/login':
-    safe_require(__DIR__ . '/views/auth/login.php');
-    break;
-
-    case 'auth/login-action':
-    safe_require(__DIR__ . '/controllers/login.php');
-    break;
-    
-
-    // ----- CONTROLLERS / ACTIONS -----
     case 'auth/register-action':
         safe_require(__DIR__ . '/controllers/register.php');
         break;
-
     case 'auth/check-email':
         safe_require(__DIR__ . '/controllers/check-email.php');
         break;
-    
-    case 'doctor/dashboard':
-    safe_require(__DIR__ . '/views/doctor/dashboard.php');
-    break;
-
-    case 'admin/dashboard':
-    safe_require(__DIR__ . '/views/admin/dashboard.php');
-    break;
     case 'auth/logout':
-    safe_require(__DIR__ . '/controllers/logout.php');
-    break;
-
+        safe_require(__DIR__ . '/controllers/logout.php');
+        break;
     case 'auth/check_status':
-    safe_require(__DIR__ . '/controllers/check-status.php');
-    break;
+        safe_require(__DIR__ . '/controllers/check-status.php');
+        break;
 
-    // ----- DOCTOR SIDE -----
+
+    // ============================
+    // DOCTOR MODULE
+    // ============================
+    case 'doctor/dashboard':
+        safe_require(__DIR__ . '/views/doctor/dashboard.php');
+        break;
     case 'doctor/appointments':
         safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
         $controller = new DoctorAppointmentsController($db);
         $controller->index();
         break;
-    
     case 'doctor/appointments/view':
         safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
         $controller = new DoctorAppointmentsController($db);
         $controller->view();
         break;
-
     case 'doctor/appointments/update_status':
         safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
         $controller = new DoctorAppointmentsController($db);
         $controller->update_status();
         break;
-
     case 'doctor/appointments/save_notes':
         safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
         $controller = new DoctorAppointmentsController($db);
         $controller->save_notes();
         break;
-
     case 'doctor/patients/view':
         safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
         $controller = new DoctorAppointmentsController($db);
         $controller->view_patient();
         break;
-
     case 'doctor/profile':
         safe_require(__DIR__ . '/controllers/DoctorAppointmentsController.php');
         $controller = new DoctorAppointmentsController($db);
         $controller->profile();
         break;
 
+
+    // ============================
+    // PATIENT MODULE
+    // ============================
+    case 'patient/dashboard':
+        safe_require(__DIR__ . '/controllers/PatientDashboardController.php');
+        $controller = new PatientDashboardController($db);
+        $controller->index();
+        break;
+    
+    // Appointments
+    case 'patient/appointments':
+        safe_require(__DIR__ . '/controllers/PatientAppointmentsController.php');
+        $controller = new PatientAppointmentsController($db);
+        $controller->index();
+        break;
+    case 'patient/appointments/view':
+        safe_require(__DIR__ . '/controllers/PatientAppointmentsController.php');
+        $controller = new PatientAppointmentsController($db);
+        $controller->view();
+        break;
+
+    // Profile
+    case 'patient/profile':
+        safe_require(__DIR__ . '/controllers/PatientProfileController.php');
+        $controller = new PatientProfileController($db);
+        $controller->show();
+        break;
+    case 'patient/medical-save':
+        safe_require(__DIR__ . '/controllers/PatientProfileController.php');
+        $controller = new PatientProfileController($db);
+        $controller->save();
+        break;
+
+    // Booking Flow
+    case 'patient/book/start':
+        safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+        $controller = new PatientBookingController($db);
+        $controller->start();
+        break;
+    case 'patient/book/step2':
+        safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+        $controller = new PatientBookingController($db);
+        $controller->step2();
+        break;
+    case 'patient/book/step3':
+        safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+        $controller = new PatientBookingController($db);
+        $controller->step3();
+        break;
+    case 'patient/book/step4':
+        safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+        $controller = new PatientBookingController($db);
+        $controller->step4();
+        break;
+    case 'patient/book/complete':
+        safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+        $controller = new PatientBookingController($db);
+        $controller->complete();
+        break;
+    case 'patient/book/success':
+        safe_require(__DIR__ . '/controllers/PatientBookingController.php');
+        $controller = new PatientBookingController($db);
+        $controller->success();
+        break;
+
+
+    // ============================
+    // ADMIN MODULE
+    // ============================
+    case 'admin/dashboard':
+        safe_require(__DIR__ . '/views/admin/dashboard.php');
+        break;
+    
+    // Doctors
+    case 'admin/doctors':
+        safe_require(__DIR__ . '/controllers/DoctorsController.php');
+        index_doctors();
+        break;
+    case 'admin/doctors/create':
+        safe_require(__DIR__ . '/controllers/DoctorsController.php');
+        create_doctor();
+        break;
+    case 'admin/doctors/store':
+        safe_require(__DIR__ . '/controllers/DoctorsController.php');
+        store_doctor();
+        break;
+    case 'admin/doctors/edit':
+        safe_require(__DIR__ . '/controllers/DoctorsController.php');
+        edit_doctor();
+        break;
+    case 'admin/doctors/update':
+        safe_require(__DIR__ . '/controllers/DoctorsController.php');
+        update_doctor();
+        break;
+    case 'admin/doctors/delete':
+        safe_require(__DIR__ . '/controllers/DoctorsController.php');
+        delete_doctor();
+        break;
+    case 'admin/doctors/view':
+        safe_require(__DIR__ . '/controllers/DoctorsController.php');
+        view_doctor();
+        break;
+    case 'admin/doctors/availability':
+        safe_require(__DIR__ . '/controllers/DoctorsController.php');
+        manage_availability();
+        break;
+    case 'admin/doctors/availability/edit':
+        safe_require(__DIR__ . '/controllers/DoctorsController.php');
+        edit_availability();
+        break;
+    case 'admin/doctors/availability/update':
+        safe_require(__DIR__ . '/controllers/DoctorsController.php');
+        update_availability();
+        break;
+
+    // Specialities
     case 'admin/specialities':
-    safe_require(__DIR__ . '/controllers/SpecialityController.php');
-    index_specialities();
-    break;
+        safe_require(__DIR__ . '/controllers/SpecialityController.php');
+        index_specialities();
+        break;
+    case 'admin/specialities/create':
+        safe_require(__DIR__ . '/controllers/SpecialityController.php');
+        create_speciality();
+        break;
+    case 'admin/specialities/store':
+        safe_require(__DIR__ . '/controllers/SpecialityController.php');
+        store_speciality();
+        break;
+    case 'admin/specialities/edit':
+        safe_require(__DIR__ . '/controllers/SpecialityController.php');
+        edit_speciality();
+        break;
+    case 'admin/specialities/update':
+        safe_require(__DIR__ . '/controllers/SpecialityController.php');
+        update_speciality();
+        break;
+    case 'admin/specialities/delete':
+        safe_require(__DIR__ . '/controllers/SpecialityController.php');
+        delete_speciality();
+        break;
 
-case 'admin/specialities/create':
-    safe_require(__DIR__ . '/controllers/SpecialityController.php');
-    create_speciality();
-    break;
-
-case 'admin/specialities/store':
-    safe_require(__DIR__ . '/controllers/SpecialityController.php');
-    store_speciality();
-    break;
-
-case 'admin/specialities/edit':
-    safe_require(__DIR__ . '/controllers/SpecialityController.php');
-    edit_speciality();
-    break;
-
-case 'admin/specialities/update':
-    safe_require(__DIR__ . '/controllers/SpecialityController.php');
-    update_speciality();
-    break;
-
-case 'admin/specialities/delete':
-    safe_require(__DIR__ . '/controllers/SpecialityController.php');
-    delete_speciality();
-    break;
-case 'admin/doctors':
-safe_require(__DIR__ . '/controllers/DoctorsController.php');
-index_doctors();
-break;
-
-case 'admin/doctors/create':
-safe_require(__DIR__ . '/controllers/DoctorsController.php');
-create_doctor();
-break;
-
-case 'admin/doctors/store':
-safe_require(__DIR__ . '/controllers/DoctorsController.php');
-store_doctor();
-break;
-case 'admin/doctors/availability/edit':
-    safe_require(__DIR__ . '/controllers/DoctorsController.php');
-    edit_availability();
-    break;
-
-case 'admin/doctors/availability/update':
-    safe_require(__DIR__ . '/controllers/DoctorsController.php');
-    update_availability();
-    break;
-
-case 'admin/doctors/edit':
-safe_require(__DIR__ . '/controllers/DoctorsController.php');
-edit_doctor();
-break;
-
-case 'admin/doctors/update':
-safe_require(__DIR__ . '/controllers/DoctorsController.php');
-update_doctor();
-break;
-
-case 'admin/doctors/delete':
-safe_require(__DIR__ . '/controllers/DoctorsController.php');
-delete_doctor();
-break;
-
-case 'admin/doctors/view':
-safe_require(__DIR__ . '/controllers/DoctorsController.php');
-view_doctor();
-break;
-
-case 'admin/doctors/availability':
-safe_require(__DIR__ . '/controllers/DoctorsController.php');
-manage_availability();
-break;
-// ----- ADMIN / PATIENTS -----
-// ----- ADMIN / PATIENTS -----
-case 'admin/patients':
-    safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
-    $controller = new AdminPatientsController($db);
-    $controller->index();
-    break;
-
-case 'admin/patients/view':
-    safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
-    $controller = new AdminPatientsController($db);
-    $controller->view();
-    break;
-
+    // Patients
+    case 'admin/patients':
+        safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
+        $controller = new AdminPatientsController($db);
+        $controller->index();
+        break;
+    case 'admin/patients/view':
+        safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
+        $controller = new AdminPatientsController($db);
+        $controller->view();
+        break;
     case 'admin/patients/appointments':
-    safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
-    $controller = new AdminPatientsController($db);
-    $controller->appointments();
-    break;
+        safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
+        $controller = new AdminPatientsController($db);
+        $controller->appointments();
+        break;
+    case 'admin/patients/delete':
+        safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
+        $controller = new AdminPatientsController($db);
+        $controller->delete();
+        break;
 
-case 'admin/patients/delete':
-    safe_require(__DIR__ . '/controllers/AdminPatientsController.php');
-    $controller = new AdminPatientsController($db);
-    $controller->delete();
-    break;
+    // Appointments
+    case 'admin/appointments':
+        safe_require(__DIR__ . '/controllers/AdminAppointmentsController.php');
+        $controller = new AdminAppointmentsController($db);
+        $controller->index();
+        break;
+    case 'admin/appointments/view':
+        safe_require(__DIR__ . '/controllers/AdminAppointmentsController.php');
+        $controller = new AdminAppointmentsController($db);
+        $controller->view();
+        break;
 
-
-    // ----- ADMIN / APPOINTMENTS -----
-case 'admin/appointments':
-    safe_require(__DIR__ . '/controllers/AdminAppointmentsController.php');
-    $controller = new AdminAppointmentsController($db);
-    $controller->index();
-    break;
-case 'admin/appointments/view':
-    safe_require(__DIR__ . '/controllers/AdminAppointmentsController.php');
-    $controller = new AdminAppointmentsController($db);
-    $controller->view();
-    break;
-
-    // ----- ADMIN / PAYMENTS -----
-case 'admin/payments':
-    safe_require(__DIR__ . '/controllers/AdminPaymentsController.php');
-    $controller = new AdminPaymentsController($db);
-    $controller->index();
-    break;
-
-case 'admin/payments/view':
-    safe_require(__DIR__ . '/controllers/AdminPaymentsController.php');
-    $controller = new AdminPaymentsController($db);
-    $controller->view();
-    break;
+    // Payments
+    case 'admin/payments':
+        safe_require(__DIR__ . '/controllers/AdminPaymentsController.php');
+        $controller = new AdminPaymentsController($db);
+        $controller->index();
+        break;
+    case 'admin/payments/view':
+        safe_require(__DIR__ . '/controllers/AdminPaymentsController.php');
+        $controller = new AdminPaymentsController($db);
+        $controller->view();
+        break;
 
 
-    // Patient medical profile form (GET)
-case 'patient/dashboard':
-    safe_require(__DIR__ . '/controllers/PatientDashboardController.php');
-    $controller = new PatientDashboardController($db);
-    $controller->index();
-    break;
-
-    // Patient Booking Flow
-case 'patient/book/start':
-    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
-    $controller = new PatientBookingController($db);
-    $controller->start();
-    break;
-case 'patient/book/step2':
-    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
-    $controller = new PatientBookingController($db);
-    $controller->step2();
-    break;
-case 'patient/book/step3':
-    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
-    $controller = new PatientBookingController($db);
-    $controller->step3();
-    break;
-case 'patient/book/step4':
-    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
-    $controller = new PatientBookingController($db);
-    $controller->step4();
-    break;
-case 'patient/book/complete':
-    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
-    $controller = new PatientBookingController($db);
-    $controller->complete();
-    break;
-case 'patient/book/success':
-    safe_require(__DIR__ . '/controllers/PatientBookingController.php');
-    $controller = new PatientBookingController($db);
-    $controller->success();
-    break;
-
-case 'patient/appointments':
-    safe_require(__DIR__ . '/controllers/PatientAppointmentsController.php');
-    $controller = new PatientAppointmentsController($db);
-    $controller->index();
-    break;
-
-case 'patient/appointments/view':
-    safe_require(__DIR__ . '/controllers/PatientAppointmentsController.php');
-    $controller = new PatientAppointmentsController($db);
-    $controller->view();
-    break;
-
-case 'patient/profile':
-    safe_require(__DIR__ . '/controllers/PatientProfileController.php');
-    $controller = new PatientProfileController($db);
-    $controller->show();
-    break;
-
-case 'patient/medical-save':
-    safe_require(__DIR__ . '/controllers/PatientProfileController.php');
-    $controller = new PatientProfileController($db);
-    $controller->save();
-    break;
+    // ============================
+    // LANDING & DEFAULT
+    // ============================
     case '':
     case 'home':
     case 'landing':
