@@ -162,6 +162,12 @@ switch ($route) {
         $controller->save();
         break;
 
+    case 'patient/medical':
+        safe_require(__DIR__ . '/controllers/PatientProfileController.php');
+        $controller = new PatientProfileController($db);
+        $controller->medical();
+        break;
+
     // Booking Flow
     case 'patient/book/start':
         safe_require(__DIR__ . '/controllers/PatientBookingController.php');

@@ -57,6 +57,42 @@ class PatientProfileController
     }
 
     /**
+     * Show medical profile form (GET).
+     */
+    public function medical()
+    {
+        // include CSRF helper safely
+        $csrfPath = __DIR__ . '/../config/csrf.php';
+        if (file_exists($csrfPath)) require_once $csrfPath;
+
+        require_patient_login();
+
+        $patientId = (int)$_SESSION['patient_id'];
+        
+        // Fetch full patient data (Basic + Medical)
+        $patient = $this->patientModel->findByIdWithProfile($patientId);
+        
+        if (!$patient) {
+            session_destroy();
+            header("Location: " . (defined('BASE_PATH') ? BASE_PATH : '') . "/index.php");
+            exit;
+        }
+
+        $profile = $patient['medical_profile'] ?? [];
+
+        // include the medical profile view
+        $viewPath = __DIR__ . '/../views/patient/medical_profile.php';
+        if (file_exists($viewPath)) {
+            require $viewPath;
+            return;
+        }
+
+        http_response_code(500);
+        echo "<h1>500</h1><p>Missing view: " . htmlspecialchars($viewPath) . "</p>";
+        exit;
+    }
+
+    /**
      * Save form (POST) — returns JSON.
      */
     public function save()
@@ -93,20 +129,24 @@ class PatientProfileController
             $get = function($k, $d='') { return isset($_POST[$k]) ? trim((string)$_POST[$k]) : $d; };
 
             // --- Basic Info Update ---
-            $name = $get('name');
-            $address = $get('address');
-            
-            if (empty($name)) {
-                echo json_encode(['status'=>'error','message'=>'Name is required']); 
-                return; 
-            }
-            
-            // Allow name update? Yes. Validate len
-            if (strlen($name) > 100) { echo json_encode(['status'=>'error','message'=>'Name too long']); return; }
-            if (strlen($address) > 255) { echo json_encode(['status'=>'error','message'=>'Address too long']); return; }
+            // Only update basic info if 'name' is provided (e.g. from main profile page)
+            // The medical-only completion page does not send 'name'.
+            if (isset($_POST['name'])) {
+                $name = $get('name');
+                $address = $get('address');
+                
+                if (empty($name)) {
+                    echo json_encode(['status'=>'error','message'=>'Name is required']); 
+                    return; 
+                }
+                
+                // Allow name update? Yes. Validate len
+                if (strlen($name) > 100) { echo json_encode(['status'=>'error','message'=>'Name too long']); return; }
+                if (strlen($address) > 255) { echo json_encode(['status'=>'error','message'=>'Address too long']); return; }
 
-            // Update Basic Info
-            $this->patientModel->updateBasicInfo($patientId, $name, $address);
+                // Update Basic Info
+                $this->patientModel->updateBasicInfo($patientId, $name, $address);
+            }
 
 
             // --- Medical Profile Update ---
