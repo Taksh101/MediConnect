@@ -175,7 +175,7 @@ $pageTitle = 'MediConnect - Patient Dashboard';
                                     <?= (new DateTime($nextAppointment['Appointment_Time']))->format('h:i A') ?> 
                                     <span class="mx-2">|</span> 
                                     <i class="bi bi-geo-alt me-2"></i>
-                                    Online Meeting
+                                    <?= h($nextAppointment['Visit_Type'] ?? 'Consultation') ?>
                                 </div>
                             </div>
                         </div>
@@ -211,10 +211,10 @@ $pageTitle = 'MediConnect - Patient Dashboard';
                         </div>
                     </a>
                     <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=patient/appointments" class="quick-item">
-                        <div class="quick-icon" style="background:#f0fdf4; color:#16a34a;"><i class="bi bi-clock-history"></i></div>
+                        <div class="quick-icon" style="background:#f0fdf4; color:#16a34a;"><i class="bi bi-calendar-check"></i></div>
                         <div>
-                            <div class="fw-bold">History</div>
-                            <div class="small text-muted">Past consultations</div>
+                            <div class="fw-bold">View Appointments</div>
+                            <div class="small text-muted">View all visits</div>
                         </div>
                     </a>
                     <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=patient/profile" class="quick-item">

@@ -107,6 +107,9 @@ include __DIR__ . '/../../includes/patientNavbar.php'; ?>
                 ?>
                 <h4 class="fw-bold mb-1"><?= $displayDr . h($dName) ?></h4>
                 <div class="text-muted small">Consultation Fee: <span class="fw-bold text-dark">₹<?= number_format((float)$speciality['Consultation_Fee'], 0) ?></span></div>
+                <div class="text-muted small mt-1">
+                    <i class="bi bi-calendar3 me-1"></i> Available: <span class="fw-medium text-dark"><?= implode(', ', array_unique(array_column($allAvail, 'Available_Day'))) ?></span>
+                </div>
             </div>
             <div class="mt-3 mt-md-0">
                 <label class="form-label small fw-bold text-muted mb-1">Select Date</label>
@@ -117,6 +120,8 @@ include __DIR__ . '/../../includes/patientNavbar.php'; ?>
             </div>
         </div>
         
+
+
         <h5 class="fw-bold mb-3">Available Slots <span class="fw-normal text-muted fs-6">(<?= count($slots) ?>)</span></h5>
         
         <form id="bookingForm" action="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php" method="GET">

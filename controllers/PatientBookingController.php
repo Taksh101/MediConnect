@@ -180,7 +180,7 @@ class PatientBookingController {
         $time = $_POST['time'] ?? '';
         $amount = (float)($_POST['amount'] ?? 0);
         $method = $_POST['payment_method'] ?? 'Card';
-        $visitType = 'Online Consultation'; // Or form input if we had it
+        $visitType = $_POST['visit_type'] ?? 'Online Consultation';
         $description = $_POST['symptoms'] ?? 'Regular Checkup';
 
         // 1. Simulate Payment Processing

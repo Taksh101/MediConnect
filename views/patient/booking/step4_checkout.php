@@ -174,25 +174,25 @@ include __DIR__ . '/../../includes/patientNavbar.php'; ?>
                             <label class="form-label">Card Number</label>
                             <div class="input-group has-validation">
                                 <span class="input-group-text bg-white border-end-0" id="cardIcon"><i class="bi bi-credit-card"></i></span>
-                                <input type="text" class="form-control border-start-0" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
+                                <input type="text" class="form-control border-start-0" id="cardNumber" name="card_number" placeholder="0000 0000 0000 0000" maxlength="19">
                                 <div class="invalid-feedback">Invalid card number (16 digits).</div>
                             </div>
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-6">
                                 <label class="form-label">Expiry Date</label>
-                                <input type="text" class="form-control" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                                <input type="text" class="form-control" id="cardExpiry" name="card_expiry" placeholder="MM/YY" maxlength="5">
                                 <div class="invalid-feedback" id="expiryFeedback">Invalid date.</div>
                             </div>
                             <div class="col-6">
                                 <label class="form-label">CVV</label>
-                                <input type="password" class="form-control" id="cardCvv" placeholder="123" maxlength="3">
+                                <input type="password" class="form-control" id="cardCvv" name="card_cvv" placeholder="123" maxlength="3">
                                 <div class="invalid-feedback">Required (3 digits).</div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Card Holder Name</label>
-                            <input type="text" class="form-control" id="cardName" placeholder="Name on Card">
+                            <input type="text" class="form-control" id="cardName" name="card_name" placeholder="Name on Card">
                             <div class="invalid-feedback">Alphabets only.</div>
                         </div>
                     </div>
@@ -270,7 +270,7 @@ include __DIR__ . '/../../includes/patientNavbar.php'; ?>
     nameInput.addEventListener('input', function(e) {
         let v = e.target.value.toUpperCase().replace(/[^A-Z\s]/g, '');
         e.target.value = v;
-        validateField(this, v.length > 2);
+        validateField(this, v.length >= 2);
     });
     
     cvvInput.addEventListener('input', function(e){
@@ -352,7 +352,7 @@ include __DIR__ . '/../../includes/patientNavbar.php'; ?>
             updateIconColor(cardIcon, cardInput.value.replace(/\s/g,'').length === 16, true);
             
             if(!validateExpiry(expiryInput)) valid = false;
-            if(!validateField(nameInput, nameInput.value.trim().length > 2)) valid = false;
+            if(!validateField(nameInput, nameInput.value.trim().length >= 2)) valid = false;
             if(!validateField(cvvInput, cvvInput.value.length === 3)) valid = false;
         } else {
             const upiRegex = /^[a-zA-Z0-9.\-_]{2,49}@[a-zA-Z._]{2,49}$/;
