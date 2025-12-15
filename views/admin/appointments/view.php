@@ -15,6 +15,9 @@ if (strpos($s_lower, 'approv') !== false) {
 } elseif (strpos($s_lower, 'complet') !== false) {
     $statusClass = 'bg-success text-white';
     $statusIcon = 'bi-check-all';
+} elseif (strpos($s_lower, 'miss') !== false) {
+    $statusClass = 'bg-secondary text-white';
+    $statusIcon = 'bi-calendar-x';
 } elseif (strpos($s_lower, 'reject') !== false || strpos($s_lower, 'cancel') !== false) {
     $statusClass = 'bg-danger text-white';
     $statusIcon = 'bi-x-circle-fill';
