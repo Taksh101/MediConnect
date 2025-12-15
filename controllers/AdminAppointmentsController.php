@@ -8,6 +8,40 @@ class AdminAppointmentsController {
     public function __construct($db) {
         $this->db = $db;
         $this->appointmentModel = new AppointmentModel($db);
+        $this->updateAppointmentStatuses(); // Run auto-update logic on admin access too
+    }
+
+    private function updateAppointmentStatuses() {
+        // Use consistent timezone
+        date_default_timezone_set('Asia/Kolkata');
+        $currentDateTime = date('Y-m-d H:i:s');
+
+        // 1. Auto-Reject Pending appointments (Global check)
+        $sqlReject = "UPDATE appointments 
+                      SET Status = 'Rejected' 
+                      WHERE Status = 'Pending' 
+                      AND TIMESTAMP(Appointment_Date, Appointment_Time) < ?";
+        $stmt = $this->db->prepare($sqlReject);
+        $stmt->bind_param('s', $currentDateTime);
+        $stmt->execute();
+
+        // 2. Auto-Miss Approved appointments (Global check)
+        try {
+            $sqlMiss = "UPDATE appointments a 
+                        JOIN doctors d ON a.Doctor_Id = d.Doctor_Id
+                        JOIN specialities s ON d.Speciality_Id = s.Speciality_Id
+                        LEFT JOIN consultation_notes cn ON a.Appointment_Id = cn.Appointment_Id
+                        SET a.Status = 'Missed' 
+                        WHERE a.Status = 'Approved' 
+                        AND cn.Note_Id IS NULL
+                        AND TIMESTAMP(a.Appointment_Date, a.Appointment_Time) + INTERVAL s.Consultation_Duration MINUTE < ?";
+            
+            $stmt2 = $this->db->prepare($sqlMiss);
+            $stmt2->bind_param('s', $currentDateTime);
+            $stmt2->execute();
+        } catch (Exception $e) {
+            error_log("Admin auto-miss update failed: " . $e->getMessage());
+        }
     }
 
     public function index() {

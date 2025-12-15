@@ -33,30 +33,47 @@ class DoctorAppointmentsController {
     }
 
     private function updateAppointmentStatuses() {
+        $currentDateTime = date('Y-m-d H:i:s'); // Asia/Kolkata set in constructor
+
         // 1. Auto-Reject Pending appointments that have passed
         // (If Appointment Time has passed and it's still Pending)
         $sqlReject = "UPDATE appointments 
                       SET Status = 'Rejected' 
                       WHERE Doctor_Id = ? 
                       AND Status = 'Pending' 
-                      AND TIMESTAMP(Appointment_Date, Appointment_Time) < NOW()";
+                      AND TIMESTAMP(Appointment_Date, Appointment_Time) < ?";
         $stmt = $this->db->prepare($sqlReject);
-        $stmt->bind_param('i', $this->doctorId);
+        $stmt->bind_param('is', $this->doctorId, $currentDateTime);
         $stmt->execute();
 
-        // 2. Auto-Miss Approved appointments that have ended (Duration Passed) without Completion
+        // 2. Auto-Miss Approved appointments that have ended (Duration Passed) without Completion AND No Notes
         // Uses JOIN to get exact Duration from Specialities
-        $sqlMiss = "UPDATE appointments a 
-                    JOIN doctors d ON a.Doctor_Id = d.Doctor_Id
-                    JOIN specialities s ON d.Speciality_Id = s.Speciality_Id
-                    SET a.Status = 'Missed' 
-                    WHERE a.Doctor_Id = ? 
-                    AND a.Status = 'Approved' 
-                    AND TIMESTAMP(a.Appointment_Date, a.Appointment_Time) + INTERVAL s.Consultation_Duration MINUTE < NOW()";
-        
-        $stmt2 = $this->db->prepare($sqlMiss);
-        $stmt2->bind_param('i', $this->doctorId);
-        $stmt2->execute();
+        try {
+            // Because we can't easily do a multi-table UPDATE with a subquery check in the same table quickly in one clean sweep 
+            // without potential issues in some MySQL versions (though MySQL supports multi-table update),
+            // let's stick to the standard Multi-table UPDATE syntax.
+            // We want to update 'appointments' (alias a).
+            // Condition: Status='Approved', Time+Duration < Now, AND No entry in consultation_notes.
+            
+            $sqlMiss = "UPDATE appointments a 
+                        JOIN doctors d ON a.Doctor_Id = d.Doctor_Id
+                        JOIN specialities s ON d.Speciality_Id = s.Speciality_Id
+                        LEFT JOIN consultation_notes cn ON a.Appointment_Id = cn.Appointment_Id
+                        SET a.Status = 'Missed' 
+                        WHERE a.Doctor_Id = ? 
+                        AND a.Status = 'Approved' 
+                        AND cn.Note_Id IS NULL
+                        AND TIMESTAMP(a.Appointment_Date, a.Appointment_Time) + INTERVAL s.Consultation_Duration MINUTE < ?";
+            
+            $stmt2 = $this->db->prepare($sqlMiss);
+            if ($stmt2) {
+                $stmt2->bind_param('is', $this->doctorId, $currentDateTime);
+                $stmt2->execute();
+            }
+        } catch (Exception $e) {
+            // Silently fail or log if needed, ensuring main flow doesn't break
+            error_log("Auto-miss update failed: " . $e->getMessage());
+        }
     }
 
     public function index() {
