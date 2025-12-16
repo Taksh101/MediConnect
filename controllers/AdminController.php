@@ -8,6 +8,11 @@ global $mysqli;
     require_admin_login();
 
     $model = new AdminModel($mysqli);
+    
+    // Auto-update statuses globally
+    require_once __DIR__ . '/../models/AppointmentModel.php';
+    $apptModel = new AppointmentModel($mysqli);
+    $apptModel->autoUpdateStatuses(); // Updates statuses so dashboard numbers are fresh
 
     $data = [
       'total_patients' => $model->countPatients(),

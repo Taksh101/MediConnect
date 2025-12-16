@@ -140,9 +140,15 @@ include __DIR__ . '/../../includes/patientNavbar.php'; ?>
             <?php else: ?>
                 <div class="slot-grid mb-4">
                     <?php foreach ($slots as $slot): ?>
-                        <div class="slot-pill" onclick="selectSlot(this, '<?= $slot['time'] ?>')">
-                            <?= $slot['display'] ?>
-                        </div>
+                        <?php if(!empty($slot['disabled'])): ?>
+                            <div class="slot-pill text-muted bg-light border-0" style="cursor: not-allowed; opacity: 0.6;">
+                                <?= $slot['display'] ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="slot-pill" onclick="selectSlot(this, '<?= $slot['time'] ?>')">
+                                <?= $slot['display'] ?>
+                            </div>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>

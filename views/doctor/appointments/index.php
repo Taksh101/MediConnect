@@ -172,5 +172,6 @@ include __DIR__ . '/../../includes/doctorNavbar.php';
         </div>
     </div>
 </div>
+<div style="height:80px;"></div>
 
 <?php include __DIR__ . '/../../includes/footer.php'; ?>

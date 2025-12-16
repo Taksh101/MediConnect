@@ -11,6 +11,7 @@ class PatientDashboardController {
     public function __construct($db) {
         $this->db = $db;
         $this->appointmentModel = new AppointmentModel($db);
+        $this->appointmentModel->autoUpdateStatuses();
         $this->patientModel = new PatientModel($db);
     }
 

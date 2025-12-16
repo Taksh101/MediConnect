@@ -110,7 +110,6 @@ body { background:var(--bg-color); font-family:'Inter',sans-serif; color:var(--t
                         </table>
                     </div>
                 </div>
-
                 <?php if ($totalPages > 1): ?>
                     <div class="pagination-wrapper d-flex justify-content-center p-3">
                         <nav aria-label="appointments-pagination">
@@ -141,5 +140,4 @@ body { background:var(--bg-color); font-family:'Inter',sans-serif; color:var(--t
         </div>
     </div>
 </div>
-
 <?php include __DIR__ . '/../../includes/footer.php'; ?>

@@ -79,6 +79,7 @@ class PatientBookingController {
         }
 
         // Validate date (no past dates)
+        date_default_timezone_set('Asia/Kolkata');
         if ($date < date('Y-m-d')) $date = date('Y-m-d');
 
         // Fetch Data
@@ -116,17 +117,19 @@ class PatientBookingController {
                 $displayTime = date('h:i A', $startTs);
 
                 // Validation:
-                // a) Not in past (if today)
+                $isDisabled = false;
+
+                // a) Not in past (if today) - Mark as disabled instead of continue
                 if ($date === date('Y-m-d') && $startTs < $nowTs) {
-                    $startTs += ($duration * 60);
-                    continue; 
+                    $isDisabled = true;
                 }
 
                 // b) Not occupied
                 if (!in_array($slotTime, $occupied)) {
                     $slots[] = [
                         'time' => $slotTime,
-                        'display' => $displayTime
+                        'display' => $displayTime,
+                        'disabled' => $isDisabled
                     ];
                 }
 
@@ -138,6 +141,9 @@ class PatientBookingController {
         usort($slots, function($a, $b) {
             return strcmp($a['time'], $b['time']);
         });
+
+        // Ensure statuses are fresh
+        $this->appointmentModel->autoUpdateStatuses();
 
         include __DIR__ . '/../views/patient/booking/step3_slots.php';
     }

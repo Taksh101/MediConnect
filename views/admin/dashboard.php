@@ -233,10 +233,6 @@ body {
                                                     <div class="fw-bold text-dark"><?= date('h:i', strtotime($a['Appointment_Time'])) ?></div>
                                                     <div class="small text-muted text-uppercase"><?= date('A', strtotime($a['Appointment_Time'])) ?></div>
                                                 </div>
-                                                <div>
-                                                    <div class="small text-muted">Duration</div>
-                                                    <div class="fw-semibold text-dark">60 min</div>
-                                                </div>
                                             </div>
                                         </td>
                                         

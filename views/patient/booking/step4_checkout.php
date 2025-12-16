@@ -296,16 +296,25 @@ include __DIR__ . '/../../includes/patientNavbar.php'; ?>
             return true;
         } else {
             el.classList.remove('is-valid');
-            if(el.value.length > 0) el.classList.add('is-invalid');
+            // Always add is-invalid if condition failed, regardless of value length, 
+            // to ensure submit button triggers visual feedback.
+            el.classList.add('is-invalid');
             return false;
         }
     }
     
     function validateExpiry(el) {
         const val = el.value;
+        // If empty, it's invalid
+        if(val.length === 0) {
+             el.classList.remove('is-valid'); 
+             el.classList.add('is-invalid');
+             return false;
+        }
+        
         if(val.length !== 5) {
              el.classList.remove('is-valid'); 
-             if(val.length > 0) el.classList.add('is-invalid');
+             el.classList.add('is-invalid');
              return false;
         }
         const [mm, yy] = val.split('/').map(num => parseInt(num, 10));

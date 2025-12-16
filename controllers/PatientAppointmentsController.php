@@ -8,6 +8,7 @@ class PatientAppointmentsController {
     public function __construct($db) {
         $this->db = $db;
         $this->appointmentModel = new AppointmentModel($db);
+        $this->appointmentModel->autoUpdateStatuses();
     }
 
     public function index() {

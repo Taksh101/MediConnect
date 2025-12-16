@@ -224,4 +224,55 @@ class AppointmentModel {
         $stmt->close();
         return $row ? (int)$row['total'] : 0;
     }
+
+    public function autoUpdateStatuses(?int $doctorId = null) {
+        // Ensure timezone
+        date_default_timezone_set('Asia/Kolkata');
+        $currentDateTime = date('Y-m-d H:i:s');
+
+        // 1. Auto-Reject Pending appointments that have passed
+        $sqlReject = "UPDATE Appointments 
+                      SET Status = 'Rejected', Updated_At = NOW()
+                      WHERE Status = 'Pending' 
+                      AND TIMESTAMP(Appointment_Date, Appointment_Time) < ?";
+        
+        if ($doctorId) {
+            $sqlReject .= " AND Doctor_Id = ?";
+        }
+        
+        $stmt = $this->db->prepare($sqlReject);
+        if ($doctorId) {
+            $stmt->bind_param('si', $currentDateTime, $doctorId);
+        } else {
+            $stmt->bind_param('s', $currentDateTime);
+        }
+        $stmt->execute();
+        $stmt->close();
+
+        // 2. Auto-Miss Approved appointments that have ended without notes
+        // We use a multi-table update logic.
+        $sqlMiss = "UPDATE Appointments a 
+                    JOIN Doctors d ON a.Doctor_Id = d.Doctor_Id
+                    JOIN Specialities s ON d.Speciality_Id = s.Speciality_Id
+                    LEFT JOIN Consultation_Notes cn ON a.Appointment_Id = cn.Appointment_Id
+                    SET a.Status = 'Missed', a.Updated_At = NOW()
+                    WHERE a.Status = 'Approved' 
+                    AND cn.Note_Id IS NULL
+                    AND TIMESTAMP(a.Appointment_Date, a.Appointment_Time) + INTERVAL s.Consultation_Duration MINUTE < ?";
+        
+        if ($doctorId) {
+            $sqlMiss .= " AND a.Doctor_Id = ?";
+        }
+
+        $stmt2 = $this->db->prepare($sqlMiss);
+        if ($stmt2) {
+            if ($doctorId) {
+                $stmt2->bind_param('si', $currentDateTime, $doctorId);
+            } else {
+                $stmt2->bind_param('s', $currentDateTime);
+            }
+            $stmt2->execute();
+            $stmt2->close();
+        }
+    }
 }
