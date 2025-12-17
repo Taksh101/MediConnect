@@ -1,5 +1,7 @@
 # 🏥 MediConnect – Online Doctor Appointment System
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Visit_MediConnect-blue?style=for-the-badge&logo=google-chrome&logoColor=white)](https://medi-connect.free.nf/)
+
 MediConnect is a **modern web-based platform** designed to streamline the connection between patients and healthcare providers.  
 It bridges the gap between **Patients 👨‍👩‍👧‍👦, Doctors 👨‍⚕️, and Administrators 🛠️**, bringing the entire medical appointment process under one secure system.
 
