@@ -122,7 +122,7 @@ include __DIR__ . '/../../includes/adminNavbar.php'; ?>
                                         </td>
                                         <td class="text-end">
                                             <div class="d-flex justify-content-end">
-                                                <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/payments/view&id=<?= (int)$p['Payment_Id'] ?>" class="btn-icon view" title="View Details"><i class="bi bi-eye-fill"></i></a>
+                                                <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/payments/view&id=<?= (int)$p['Payment_Id'] ?>&page=<?= $page ?>" class="btn-icon view" title="View Details"><i class="bi bi-eye-fill"></i></a>
                                             </div>
                                         </td>
                                     </tr>

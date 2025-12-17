@@ -167,9 +167,9 @@ include __DIR__ . '/../../includes/adminNavbar.php'; ?>
                                         </td>
                                         <td class="align-middle">
                                             <div class="action-btn-group">
-                                                <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/doctors/view&id=<?= (int)$d['Doctor_Id'] ?>" class="btn-icon view" title="View"><i class="bi bi-person-lines-fill"></i></a>
-                                                <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/doctors/availability&doctor_id=<?= (int)$d['Doctor_Id'] ?>" class="btn-icon avail" title="Availability"><i class="bi bi-calendar-week"></i></a>
-                                                <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/doctors/edit&id=<?= (int)$d['Doctor_Id'] ?>" class="btn-icon edit" title="Edit"><i class="bi bi-pencil-fill"></i></a>
+                                                <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/doctors/view&id=<?= (int)$d['Doctor_Id'] ?>&page=<?= $page ?>" class="btn-icon view" title="View"><i class="bi bi-person-lines-fill"></i></a>
+                                                <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/doctors/availability&doctor_id=<?= (int)$d['Doctor_Id'] ?>&page=<?= $page ?>" class="btn-icon avail" title="Availability"><i class="bi bi-calendar-week"></i></a>
+                                                <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/doctors/edit&id=<?= (int)$d['Doctor_Id'] ?>&page=<?= $page ?>" class="btn-icon edit" title="Edit"><i class="bi bi-pencil-fill"></i></a>
                                                 <button class="btn-icon delete btn-delete" data-id="<?= (int)$d['Doctor_Id'] ?>" title="Delete"><i class="bi bi-trash-fill"></i></button>
                                             </div>
                                         </td>

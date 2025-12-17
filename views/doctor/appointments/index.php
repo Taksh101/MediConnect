@@ -85,6 +85,12 @@ include __DIR__ . '/../../includes/doctorNavbar.php';
     @media (max-width: 768px) {
         .table-responsive { border: 0; }
     }
+
+    /* Consistent Pagination Styles */
+    .pagination-wrapper { padding: 20px 0; }
+    .page-link { border: none; color: #6b7280; margin: 0 4px; border-radius: 8px; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; }
+    .page-link:hover { background-color: #f3f4f6; color: #111827; }
+    .page-item.active .page-link { background-color: var(--primary-color); color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3); }
 </style>
 
 <div class="container container-wide">
@@ -159,7 +165,7 @@ include __DIR__ . '/../../includes/doctorNavbar.php';
                                         </span>
                                     </td>
                                     <td class="pe-4 text-end">
-                                        <a href="<?= route_url_local('doctor/appointments/view&id=' . $a['Appointment_Id']) ?>" class="btn-icon-soft" title="View Details">
+                                        <a href="<?= route_url_local('doctor/appointments/view&id=' . $a['Appointment_Id'] . '&tab=' . $tab . '&page=' . $page) ?>" class="btn-icon-soft" title="View Details">
                                             <i class="bi bi-eye-fill"></i>
                                         </a>
                                     </td>
@@ -171,6 +177,40 @@ include __DIR__ . '/../../includes/doctorNavbar.php';
             <?php endif; ?>
         </div>
     </div>
+    
+    <!-- Pagination -->
+    <?php if (isset($totalPages) && $totalPages > 1): ?>
+    <div class="pagination-wrapper d-flex justify-content-center">
+        <nav aria-label="Page navigation">
+            <ul class="pagination mb-0">
+                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                    <a class="page-link" href="<?= route_url_local('doctor/appointments&tab=' . $tab . '&page=' . max(1, $page - 1)) ?>">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                <?php
+                $visible = 5;
+                $start = max(1, $page - floor($visible/2));
+                $end = min($totalPages, $start + $visible - 1);
+                if ($end - $start + 1 < $visible) {
+                    $start = max(1, $end - $visible + 1);
+                }
+                for ($p = $start; $p <= $end; $p++): ?>
+                    <li class="page-item <?= ($p == $page) ? 'active' : '' ?>">
+                        <a class="page-link" href="<?= route_url_local('doctor/appointments&tab=' . $tab . '&page=' . $p) ?>">
+                            <?= $p ?>
+                        </a>
+                    </li>
+                <?php endfor; ?>
+                <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                    <a class="page-link" href="<?= route_url_local('doctor/appointments&tab=' . $tab . '&page=' . min($totalPages, $page + 1)) ?>">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <?php endif; ?>
 </div>
 <div style="height:80px;"></div>
 

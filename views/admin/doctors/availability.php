@@ -2,6 +2,7 @@
 // views/admin/doctors/availability.php
 function h($s){ return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
 include __DIR__ . '/../../includes/adminNavbar.php';
+$page = $_GET['page'] ?? 1;
 $days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
 // Group availabilities by day
@@ -63,7 +64,7 @@ foreach($days as $d) {
       <p class="text-muted mb-0 small">Manage weekly time ranges. Add, edit or delete slots by day.</p>
     </div>
     <div>
-      <a class="btn btn-outline-secondary" href="<?= (defined('BASE_PATH')?BASE_PATH:'') ?>/index.php?route=admin/doctors">Back</a>
+      <a class="btn btn-outline-secondary" href="<?= (defined('BASE_PATH')?BASE_PATH:'') ?>/index.php?route=admin/doctors&page=<?= $page ?? 1 ?>">Back</a>
     </div>
   </div>
 

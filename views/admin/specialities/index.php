@@ -336,7 +336,7 @@ include __DIR__ . '/../../includes/adminNavbar.php'; ?>
 </td>
                                     <td>
                                         <div class="action-btn-group justify-content-end">
-                                            <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/specialities/edit&id=<?= (int)$s['Speciality_Id'] ?>" 
+                                            <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/specialities/edit&id=<?= (int)$s['Speciality_Id'] ?>&page=<?= $page ?>" 
                                                class="btn-icon edit" title="Edit">
                                                 <i class="bi bi-pencil-fill"></i>
                                             </a>

@@ -143,7 +143,7 @@ class PatientBookingController {
         });
 
         // Ensure statuses are fresh
-        $this->appointmentModel->autoUpdateStatuses();
+        // Ensure statuses are fresh (handled globally)
 
         include __DIR__ . '/../views/patient/booking/step3_slots.php';
     }

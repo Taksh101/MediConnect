@@ -18,9 +18,7 @@ class DoctorAppointmentsController {
         $this->db = $db;
         $this->doctorId = $_SESSION['doctor_id'];
         
-        // Auto-update statuses via Model
-        $appointmentModel = new AppointmentModel($this->db);
-        $appointmentModel->autoUpdateStatuses($this->doctorId);
+        // Auto-update statuses is now handled globally in index.php
     }
 
     private function require_doctor_login() {
@@ -37,33 +35,57 @@ class DoctorAppointmentsController {
         $validTabs = ['today', 'upcoming', 'pending', 'history'];
         if (!in_array($tab, $validTabs)) $tab = 'today';
 
-        $appointments = $this->getAppointmentsByTab($tab);
-        
+        // Pagination
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $perPage = 4;
+        $offset = ($page - 1) * $perPage;
+
+        $result = $this->getAppointmentsByTab($tab, $perPage, $offset);
+        $appointments = $result['data'];
+        $total = $result['total'];
+        $totalPages = (int)ceil($total / max(1, $perPage));
+
         // Pass data to view
         include __DIR__ . '/../views/doctor/appointments/index.php';
     }
 
-    private function getAppointmentsByTab($tab) {
-        $sql = "SELECT a.*, p.Name as Patient_Name, p.Email as Patient_Email, p.Phone as Patient_Phone
-                FROM appointments a
-                JOIN patients p ON a.Patient_Id = p.Patient_Id
-                WHERE a.Doctor_Id = ?";
+    private function getAppointmentsByTab($tab, $limit, $offset) {
+        $baseSql = "FROM appointments a
+                    JOIN patients p ON a.Patient_Id = p.Patient_Id
+                    WHERE a.Doctor_Id = ?";
+        
+        $where = "";
+        $order = "";
 
         if ($tab === 'today') {
-            $sql .= " AND a.Appointment_Date = CURDATE() ORDER BY a.Appointment_Time ASC";
+            $where = " AND a.Appointment_Date = CURDATE()";
+            $order = " ORDER BY a.Appointment_Time ASC";
         } elseif ($tab === 'upcoming') {
-            $sql .= " AND a.Appointment_Date > CURDATE() AND a.Status = 'Approved' ORDER BY a.Appointment_Date ASC, a.Appointment_Time ASC";
+            $where = " AND a.Appointment_Date > CURDATE() AND a.Status = 'Approved'";
+            $order = " ORDER BY a.Appointment_Date ASC, a.Appointment_Time ASC";
         } elseif ($tab === 'pending') {
-            $sql .= " AND a.Status = 'Pending' AND TIMESTAMP(a.Appointment_Date, a.Appointment_Time) >= NOW() ORDER BY a.Appointment_Date ASC, a.Appointment_Time ASC";
+            $where = " AND a.Status = 'Pending' AND TIMESTAMP(a.Appointment_Date, a.Appointment_Time) >= NOW()";
+            $order = " ORDER BY a.Appointment_Date ASC, a.Appointment_Time ASC";
         } elseif ($tab === 'history') {
-            // Show Past Dates OR any Final States (Completed, Rejected, Cancelled, Missed)
-            $sql .= " AND (a.Appointment_Date < CURDATE() OR a.Status IN ('Completed', 'Rejected', 'Cancelled', 'Missed')) ORDER BY a.Appointment_Date DESC, a.Appointment_Time DESC";
+            $where = " AND (a.Appointment_Date < CURDATE() OR a.Status IN ('Completed', 'Rejected', 'Cancelled', 'Missed'))";
+            $order = " ORDER BY a.Appointment_Date DESC, a.Appointment_Time DESC";
         }
 
-        $stmt = $this->db->prepare($sql);
+        // Count
+        $countSql = "SELECT COUNT(*) as cnt " . $baseSql . $where;
+        $stmt = $this->db->prepare($countSql);
         $stmt->bind_param('i', $this->doctorId);
         $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $total = $stmt->get_result()->fetch_assoc()['cnt'];
+
+        // Data
+        $dataSql = "SELECT a.*, p.Name as Patient_Name, p.Email as Patient_Email, p.Phone as Patient_Phone " . $baseSql . $where . $order . " LIMIT ? OFFSET ?";
+        $stmt = $this->db->prepare($dataSql);
+        $stmt->bind_param('iii', $this->doctorId, $limit, $offset);
+        $stmt->execute();
+        $data = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        return ['data' => $data, 'total' => $total];
     }
 
     public function view() {
@@ -78,6 +100,10 @@ class DoctorAppointmentsController {
 
         // Fetch existing notes if any
         $notes = $this->getConsultationNotes($id);
+
+        // Capture navigation state
+        $tab = $_GET['tab'] ?? 'today';
+        $page = $_GET['page'] ?? 1;
 
         include __DIR__ . '/../views/doctor/appointments/view.php';
     }

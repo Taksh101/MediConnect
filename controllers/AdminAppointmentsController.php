@@ -8,7 +8,6 @@ class AdminAppointmentsController {
     public function __construct($db) {
         $this->db = $db;
         $this->appointmentModel = new AppointmentModel($db);
-        $this->appointmentModel->autoUpdateStatuses(); // Run auto-update logic on admin access too
     }
 
     public function index() {
@@ -34,8 +33,9 @@ class AdminAppointmentsController {
         require_admin_login();
 
         $id = (int)($_GET['id'] ?? 0);
+        $page = max(1, (int)($_GET['page'] ?? 1));
         if (!$id) {
-            header("Location: " . (defined('BASE_PATH') ? BASE_PATH : '') . "/index.php?route=admin/appointments");
+            header("Location: " . (defined('BASE_PATH') ? BASE_PATH : '') . "/index.php?route=admin/appointments&page=" . $page);
             exit;
         }
         $appointment = $this->appointmentModel->findByIdWithAll($id);

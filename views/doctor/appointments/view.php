@@ -206,8 +206,8 @@ include __DIR__ . '/../../includes/doctorNavbar.php';
     <!-- Header -->
     <div class="page-header d-flex justify-content-between align-items-center mb-4 animate-in-up">
         <div>
-            <a href="<?= route_url_local('doctor/appointments') ?>" class="back-btn mb-3">
-                <i class="bi bi-arrow-left me-2"></i> All Appointments
+            <a href="<?= route_url_local('doctor/appointments&tab=' . ($tab ?? 'today') . '&page=' . ($page ?? 1)) ?>" class="back-btn mb-3">
+                <i class="bi bi-arrow-left me-2"></i> Back to List
             </a>
             <h2 class="fw-bold mb-0">Consultation Room</h2>
             <p class="text-muted small">ID #<?= str_pad($a['Appointment_Id'], 6, '0', STR_PAD_LEFT) ?> • <?= date('F j, Y', $start) ?></p>

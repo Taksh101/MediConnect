@@ -285,6 +285,7 @@ function manage_availability() {
     require_admin_login();
     global $db;
     $doctorId = (int)($_GET['doctor_id'] ?? ($_POST['doctor_id'] ?? 0));
+    $page = max(1, (int)($_GET['page'] ?? 1));
     if ($doctorId <= 0) { $_SESSION['flash_error']='Invalid doctor id'; header('Location: ' . (defined('BASE_PATH') ? BASE_PATH : '') . '/index.php?route=admin/doctors'); exit; }
     $model = new DoctorModel($db);
     $doctor = $model->find($doctorId);

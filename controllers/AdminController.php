@@ -9,10 +9,7 @@ global $mysqli;
 
     $model = new AdminModel($mysqli);
     
-    // Auto-update statuses globally
-    require_once __DIR__ . '/../models/AppointmentModel.php';
-    $apptModel = new AppointmentModel($mysqli);
-    $apptModel->autoUpdateStatuses(); // Updates statuses so dashboard numbers are fresh
+    // Auto-update statuses globally (handled in index.php)
 
     $data = [
       'total_patients' => $model->countPatients(),

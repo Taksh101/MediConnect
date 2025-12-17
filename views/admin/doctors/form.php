@@ -6,6 +6,7 @@ $action = $editing ? ((defined('BASE_PATH')?BASE_PATH:'') . '/index.php?route=ad
 $old = $_SESSION['old'] ?? [];
 $errors = $_SESSION['form_errors'] ?? [];
 unset($_SESSION['old'], $_SESSION['form_errors']);
+$page = $_GET['page'] ?? 1;
 ?>
 
 <!doctype html>
@@ -159,7 +160,7 @@ unset($_SESSION['old'], $_SESSION['form_errors']);
 
             <div class="col-12 d-flex gap-2 mt-2">
               <button id="submitBtn" type="submit" class="btn btn-primary"><?= $editing ? 'Update' : 'Add Doctor' ?></button>
-              <a class="btn btn-outline-secondary" href="<?= (defined('BASE_PATH')?BASE_PATH:'') ?>/index.php?route=admin/doctors">Cancel</a>
+              <a class="btn btn-outline-secondary" href="<?= (defined('BASE_PATH')?BASE_PATH:'') ?>/index.php?route=admin/doctors&page=<?= $page ?? 1 ?>">Cancel</a>
             </div>
           </div>
         </form>

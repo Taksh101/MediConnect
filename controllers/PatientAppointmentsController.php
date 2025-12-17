@@ -8,7 +8,6 @@ class PatientAppointmentsController {
     public function __construct($db) {
         $this->db = $db;
         $this->appointmentModel = new AppointmentModel($db);
-        $this->appointmentModel->autoUpdateStatuses();
     }
 
     public function index() {
@@ -38,8 +37,10 @@ class PatientAppointmentsController {
         require_patient_login();
 
         $id = (int)($_GET['id'] ?? 0);
+        $page = max(1, (int)($_GET['page'] ?? 1));
+
         if (!$id) {
-            header("Location: " . (defined('BASE_PATH') ? BASE_PATH : '') . "/index.php?route=patient/appointments");
+            header("Location: " . (defined('BASE_PATH') ? BASE_PATH : '') . "/index.php?route=patient/appointments&page=" . $page);
             exit;
         }
 

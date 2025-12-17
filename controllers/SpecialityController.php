@@ -100,8 +100,9 @@ function edit_speciality() {
     require_admin_login();
     global $db;
     $id = (int)($_GET['id'] ?? 0);
+    $page = max(1, (int)($_GET['page'] ?? 1));
     if ($id <= 0) {
-        header('Location: ' . (defined('BASE_PATH') ? BASE_PATH : '') . '/index.php?route=admin/specialities');
+        header('Location: ' . (defined('BASE_PATH') ? BASE_PATH : '') . '/index.php?route=admin/specialities&page=' . $page);
         exit;
     }
     $model = new SpecialityModel($db);

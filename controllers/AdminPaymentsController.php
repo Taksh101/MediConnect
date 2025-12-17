@@ -32,6 +32,7 @@ class AdminPaymentsController {
         require_admin_login();
         
         $id = (int)($_GET['id'] ?? 0);
+        $page = max(1, (int)($_GET['page'] ?? 1));
         if (!$id) {
             header("Location: " . (defined('BASE_PATH') ? BASE_PATH : '') . "/index.php?route=admin/payments");
             exit;

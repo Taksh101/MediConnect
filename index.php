@@ -35,6 +35,13 @@ if (!isset($db) || !($db instanceof mysqli)) {
     exit;
 }
 
+// ----- GLOBAL STATUS UPDATES -----
+// Automatically update appointment statuses (Missed, Rejected) on every request
+// so consistency is maintained across all views (Patient, Admin, Doctor).
+require_once __DIR__ . '/models/AppointmentModel.php';
+$globalAppointmentModel = new AppointmentModel($db);
+$globalAppointmentModel->autoUpdateStatuses();
+
 // ----- Read route param and normalize -----
 // We accept URLs like:
 //  /index.php?route=auth/register

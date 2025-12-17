@@ -8,6 +8,7 @@ $errors = $_SESSION['form_errors'] ?? [];
 unset($_SESSION['old'], $_SESSION['form_errors']);
 
 $pageTitle = ($editing ? 'Edit' : 'Add') . ' Speciality - MediConnect';
+$page = $_GET['page'] ?? 1;
 include __DIR__ . '/../../includes/adminNavbar.php';
 ?>
 
@@ -97,7 +98,7 @@ value="<?= h($old['Consultation_Fee'] ?? (isset($speciality['Consultation_Fee'])
 
         <div class="d-flex gap-2">
           <button id="submitBtn" type="submit" class="btn btn-primary"><?= $editing ? 'Update' : 'Add Speciality' ?></button>
-          <a class="btn btn-outline-secondary" href="<?= (defined('BASE_PATH')?BASE_PATH:'') ?>/index.php?route=admin/specialities">Cancel</a>
+          <a class="btn btn-outline-secondary" href="<?= (defined('BASE_PATH')?BASE_PATH:'') ?>/index.php?route=admin/specialities&page=<?= $page ?? 1 ?>">Cancel</a>
         </div>
       </form>
     </div>

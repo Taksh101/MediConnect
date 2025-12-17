@@ -63,7 +63,7 @@ include __DIR__ . '/../../includes/patientNavbar.php'; ?>
 </style>
 
 <div class="container container-wide">
-    <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=patient/appointments" class="back-link">
+    <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=patient/appointments&page=<?= $page ?? 1 ?>" class="back-link">
         <i class="bi bi-arrow-left me-1"></i> Back to My Appointments
     </a>
 

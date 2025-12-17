@@ -84,7 +84,7 @@ $pageTitle = 'MediConnect - Transaction Details';
 </style>
 
 <div class="container container-wide">
-    <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/payments" class="back-link">
+    <a href="<?= (defined('BASE_PATH') ? BASE_PATH : '') ?>/index.php?route=admin/payments&page=<?= $page ?? 1 ?>" class="back-link">
         <i class="bi bi-arrow-left me-1"></i> Back to Payments
     </a>
 
