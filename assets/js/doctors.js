@@ -1,11 +1,11 @@
 // assets/js/doctors.js
 // Live validation for doctor form + delete handling + password toggle (icon button)
 
-(function(){
-  document.addEventListener('DOMContentLoaded', function() {
+(function () {
+  document.addEventListener('DOMContentLoaded', function () {
     // DELETE (index)
     let deleteId = null;
-    document.addEventListener('click', function(e){
+    document.addEventListener('click', function (e) {
       const btn = e.target.closest('.btn-delete');
       if (!btn) return;
       deleteId = btn.dataset.id;
@@ -15,7 +15,7 @@
 
     const confirmBtn = document.getElementById('confirmDeleteBtn');
     if (confirmBtn) {
-      confirmBtn.addEventListener('click', function(){
+      confirmBtn.addEventListener('click', function () {
         if (!deleteId) return;
         const body = new URLSearchParams();
         body.append('id', deleteId);
@@ -56,45 +56,45 @@
     if (!form) return;
 
     // helpers
-    function qs(name){ return form.querySelector('[name="'+name+'"]'); }
+    function qs(name) { return form.querySelector('[name="' + name + '"]'); }
     const nameEl = qs('Name'), emailEl = qs('Email'), phoneEl = qs('Phone'), specEl = qs('Speciality_Id'), passwdEl = qs('Password'), expEl = qs('Experience_Years'), qualEl = qs('Qualification'), bioEl = qs('Bio'), statusEl = qs('Status');
 
-    function ensureFb(i){
+    function ensureFb(i) {
       if (!i) return { el: null, fb: { textContent: '' } };
       let fb = i.parentElement.querySelector('.invalid-feedback');
-      if (!fb) { fb = document.createElement('div'); fb.className='invalid-feedback'; i.parentElement.appendChild(fb); }
+      if (!fb) { fb = document.createElement('div'); fb.className = 'invalid-feedback'; i.parentElement.appendChild(fb); }
       return { el: i, fb: fb };
     }
     const fbName = ensureFb(nameEl), fbEmail = ensureFb(emailEl), fbPhone = ensureFb(phoneEl), fbSpec = ensureFb(specEl), fbPass = ensureFb(passwdEl), fbExp = ensureFb(expEl), fbQual = ensureFb(qualEl), fbBio = ensureFb(bioEl), fbStatus = ensureFb(statusEl);
 
-    function setErr(i, fb, msg){ if (!i) return; fb.textContent = msg || ''; i.classList.add('is-invalid'); i.setAttribute('aria-invalid','true'); }
-    function clearErr(i, fb){ if (!i) return; fb.textContent=''; i.classList.remove('is-invalid'); i.removeAttribute('aria-invalid'); }
+    function setErr(i, fb, msg) { if (!i) return; fb.textContent = msg || ''; i.classList.add('is-invalid'); i.setAttribute('aria-invalid', 'true'); }
+    function clearErr(i, fb) { if (!i) return; fb.textContent = ''; i.classList.remove('is-invalid'); i.removeAttribute('aria-invalid'); }
 
     // PHONE: allow digits only while typing
     if (phoneEl) {
-      phoneEl.addEventListener('input', function(e){
+      phoneEl.addEventListener('input', function (e) {
         const cleaned = this.value.replace(/\D+/g, '');
-        this.value = cleaned.slice(0,10); // max 10
+        this.value = cleaned.slice(0, 10); // max 10
       });
     }
 
-    function validateName(){ if (!nameEl.value.trim()){ setErr(nameEl, fbName.fb, 'Name is required'); return false } clearErr(nameEl, fbName.fb); return true; }
+    function validateName() { if (!nameEl.value.trim()) { setErr(nameEl, fbName.fb, 'Name is required'); return false } clearErr(nameEl, fbName.fb); return true; }
 
-    function validateEmail(){ const v = emailEl.value.trim(); if (!v || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){ setErr(emailEl, fbEmail.fb, 'Valid email required'); return false } clearErr(emailEl, fbEmail.fb); return true; }
+    function validateEmail() { const v = emailEl.value.trim(); if (!v || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { setErr(emailEl, fbEmail.fb, 'Valid email required'); return false } clearErr(emailEl, fbEmail.fb); return true; }
 
-    function validatePhone(){ const v = phoneEl.value.trim(); if (!/^[6-9][0-9]{9}$/.test(v)){ setErr(phoneEl, fbPhone.fb, 'Phone must be 10 digits and start with 6-9'); return false } clearErr(phoneEl, fbPhone.fb); return true; }
+    function validatePhone() { const v = phoneEl.value.trim(); if (!/^[6-9][0-9]{9}$/.test(v)) { setErr(phoneEl, fbPhone.fb, 'Phone must be 10 digits and start with 6-9'); return false } clearErr(phoneEl, fbPhone.fb); return true; }
 
-    function validateSpec(){ if (!specEl.value){ setErr(specEl, fbSpec.fb, 'Select speciality'); return false } clearErr(specEl, fbSpec.fb); return true; }
+    function validateSpec() { if (!specEl.value) { setErr(specEl, fbSpec.fb, 'Select speciality'); return false } clearErr(specEl, fbSpec.fb); return true; }
 
-    function validateExp(){ const v = expEl.value.trim(); if (!/^\d+$/.test(v) || Number(v) < 0){ setErr(expEl, fbExp.fb, 'Enter valid years'); return false } clearErr(expEl, fbExp.fb); return true; }
+    function validateExp() { const v = expEl.value.trim(); if (!/^\d+$/.test(v) || Number(v) < 0) { setErr(expEl, fbExp.fb, 'Enter valid years'); return false } clearErr(expEl, fbExp.fb); return true; }
 
-    function validateQualification(){ const v = qualEl.value.trim(); if (!v || v.length < 5 || v.length > 100){ setErr(qualEl, fbQual.fb, 'Qualification is required (5-100 chars)'); return false } clearErr(qualEl, fbQual.fb); return true; }
+    function validateQualification() { const v = qualEl.value.trim(); if (!v || v.length < 2 || v.length > 100) { setErr(qualEl, fbQual.fb, 'Qualification is required (2-100 chars)'); return false } clearErr(qualEl, fbQual.fb); return true; }
 
-    function validateBio(){ const v = bioEl.value.trim(); if (!v || v.length < 10 || v.length > 500){ setErr(bioEl, fbBio.fb, 'Bio required (10-500 chars)'); return false } clearErr(bioEl, fbBio.fb); return true; }
+    function validateBio() { const v = bioEl.value.trim(); if (!v || v.length < 10 || v.length > 500) { setErr(bioEl, fbBio.fb, 'Bio required (10-500 chars)'); return false } clearErr(bioEl, fbBio.fb); return true; }
 
-    function validateStatus(){ if (!['AVAILABLE','UNAVAILABLE'].includes(statusEl.value)){ setErr(statusEl, fbStatus.fb, 'Invalid status'); return false } clearErr(statusEl, fbStatus.fb); return true; }
+    function validateStatus() { if (!['AVAILABLE', 'UNAVAILABLE'].includes(statusEl.value)) { setErr(statusEl, fbStatus.fb, 'Invalid status'); return false } clearErr(statusEl, fbStatus.fb); return true; }
 
-    function validatePassword(){
+    function validatePassword() {
       const v = passwdEl.value || '';
       // if editing and empty -> ok
       if (form.querySelector('[name="Doctor_Id"]') && v === '') { clearErr(passwdEl, fbPass.fb); return true; }
@@ -111,7 +111,7 @@
     }
 
     // Attach live listeners
-    [[nameEl, validateName],[emailEl, validateEmail],[phoneEl, validatePhone],[specEl, validateSpec],[expEl, validateExp],[qualEl, validateQualification],[bioEl, validateBio],[statusEl, validateStatus],[passwdEl, validatePassword]].forEach(pair => {
+    [[nameEl, validateName], [emailEl, validateEmail], [phoneEl, validatePhone], [specEl, validateSpec], [expEl, validateExp], [qualEl, validateQualification], [bioEl, validateBio], [statusEl, validateStatus], [passwdEl, validatePassword]].forEach(pair => {
       const elRef = pair[0], fn = pair[1];
       if (!elRef) return;
       elRef.addEventListener('input', fn);
@@ -122,31 +122,31 @@
     const pwdToggle = document.getElementById('pwdToggle');
     if (pwdToggle && passwdEl) {
       pwdToggle.addEventListener('click', function () {
-  const eye = document.getElementById('pwdEyeIcon');
+        const eye = document.getElementById('pwdEyeIcon');
 
-  if (passwdEl.type === 'password') {
-    passwdEl.type = 'text';
-    eye.innerHTML = `
+        if (passwdEl.type === 'password') {
+          passwdEl.type = 'text';
+          eye.innerHTML = `
       <path d="M1 8C1 8 3.5 3.5 8 3.5C12.5 3.5 15 8 15 8C15 8 12.5 12.5 8 12.5C3.5 12.5 1 8 1 8Z"
             stroke="#374151" stroke-width="1.4"/>
       <circle cx="8" cy="8" r="2.3" stroke="#374151" stroke-width="1.4"/>
       <line x1="3" y1="3" x2="13" y2="13" stroke="#374151" stroke-width="1.6"/>
     `;
-  } else {
-    passwdEl.type = 'password';
-    eye.innerHTML = `
+        } else {
+          passwdEl.type = 'password';
+          eye.innerHTML = `
       <path d="M1 8C1 8 3.5 3.5 8 3.5C12.5 3.5 15 8 15 8C15 8 12.5 12.5 8 12.5C3.5 12.5 1 8 1 8Z"
             stroke="#374151" stroke-width="1.4"/>
       <circle cx="8" cy="8" r="2.3" stroke="#374151" stroke-width="1.4"/>
     `;
-  }
+        }
 
-  passwdEl.focus();
-});
+        passwdEl.focus();
+      });
 
     }
 
-    form.addEventListener('submit', function(ev){
+    form.addEventListener('submit', function (ev) {
       let ok = true;
       if (!validateName()) ok = false;
       if (!validateEmail()) ok = false;
@@ -185,6 +185,6 @@
       if (fbBio.fb.textContent.trim()) bioEl.classList.add('is-invalid');
       if (fbStatus.fb.textContent.trim()) statusEl.classList.add('is-invalid');
       if (fbPass.fb.textContent.trim()) passwdEl.classList.add('is-invalid');
-    } catch(e){}
+    } catch (e) { }
   });
 })();
